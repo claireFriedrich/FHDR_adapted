@@ -28,7 +28,7 @@ def make_required_directories(mode):
             print("Making test_results directory")
             os.makedirs("./test_results")
 
-
+# computes the tone mapping images of the GT HDR image.
 def mu_tonemap(img):
     """ tonemapping HDR images using μ-law before computing loss """
 

@@ -1,3 +1,5 @@
+"""Class that defines and build the model that will be used to convert LDR (Low Dynamic Range) images to HDR (High Dynamical Range) images"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -6,7 +8,11 @@ from torch.autograd import Variable
 
 class FHDR(nn.Module):
     def __init__(self, iteration_count):
-        super(FHDR, self).__init__()
+        """
+        Builds the instance of the model by only specifying the number of iterations of the model.
+        Builds the different layers and feedback loops. 
+        """
+        super(FHDR, self).__init__() # gives you access to methods in a superclass from the subclass that inherits from it
         print("FHDR model initialised")
 
         self.iteration_count = iteration_count
@@ -20,10 +26,13 @@ class FHDR(nn.Module):
         self.hrb1 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
         self.hrb2 = nn.Conv2d(64, 3, kernel_size=3, padding=0)
 
+        # final output transformation 
         self.tanh = nn.Tanh()
 
     def forward(self, input):
-
+        """
+        Defines the forward pass of the model to predict all the values at the different layers. 
+        """
         outs = []
 
         feb1 = F.relu(self.feb1(self.reflect_pad(input)))

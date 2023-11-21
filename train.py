@@ -23,10 +23,17 @@ from util import (
     save_ldr_image,
     update_lr,
 )
+# where they define the model 
+# VGG = classical/standard convolutional neural network architecture. 3x3 filters. SImple model. Just pooling, convolutional layers and 1 fully connected layer.
+# Visual Geometry Group = university of oxford, the company that created the VGGNet, for image classification. 
+# here they use VGG19 --> 19 convolutional layers
 from vgg import VGGLoss
 
 
 def weights_init(m):
+    """
+    Initializing the weights of the network as a first step.
+    """
     classname = m.__class__.__name__
     if classname.find("Conv") != -1:
         m.weight.data.normal_(0.0, 0.0)
@@ -61,9 +68,15 @@ for str_id in str_ids:
     if id >= 0:
         opt.gpu_ids.append(id)
 
+# I am on CPU so do the following: 
+"""
+opt.gpu_ids = -1
+print(opt.gpu_ids)
+"""
+
 # set gpu device
+"""
 if len(opt.gpu_ids) > 0:
-    """
     assert torch.cuda.is_available()
     assert torch.cuda.device_count() >= len(opt.gpu_ids)
 
@@ -120,20 +133,26 @@ for epoch in range(start_epoch, opt.epochs + 1):
 
     print("Epoch: ", epoch)
 
-    for batch, data in enumerate(tqdm(data_loader, desc="Batch %")):
+    # stochstic gradient descent with batch size = 3
+    for batch, data in enumerate(tqdm(data_loader)):
 
         optimizer.zero_grad()
 
         input = data["ldr_image"].data#.cuda()
         ground_truth = data["hdr_image"].data#.cuda()
 
-        # forward pass ->
+        # TODO: here is the problem of memory allocation
+        # RuntimeError: [enforce fail at alloc_cpu.cpp:80] data. DefaultCPUAllocator: not enough memory: you tried to allocate 15147008000 bytes.
+        # forward pass -> only with input image, compute weights for the input and later compare with the GT in loss
+        print("About to make a prediciton with the input and the model ......")
         output = model(input)
 
         l1_loss = 0
         vgg_loss = 0
 
         # tonemapping ground truth ->
+        # TODO: if provided only with the tone mapping, also possible to run ???!!!??
+        # could then just replace this line by the provided tone-mapped image, no need to recompute the tone mapping
         mu_tonemap_gt = mu_tonemap(ground_truth)
 
         # computing loss for n generated outputs (from n-iterations) ->
