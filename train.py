@@ -121,8 +121,12 @@ if opt.print_model:
 # ========================================
 #  training
 # ========================================
+num_epochs = 10
 
-for epoch in range(start_epoch, opt.epochs + 1):
+print(f"# of epochs: {num_epochs}")
+
+for epoch in range(start_epoch, num_epochs):
+    print(f"Epoch # {epoch}")
 
     epoch_start = time.time()
     running_loss = 0
@@ -130,8 +134,6 @@ for epoch in range(start_epoch, opt.epochs + 1):
     # check whether LR needs to be updated
     if epoch > opt.lr_decay_after:
         update_lr(optimizer, epoch, opt)
-
-    print("Epoch: ", epoch)
 
     # stochstic gradient descent with batch size = 3
     for batch, data in enumerate(tqdm(data_loader)):
