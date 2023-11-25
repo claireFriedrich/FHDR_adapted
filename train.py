@@ -4,6 +4,7 @@ Script for training the FHDR model.
 
 import os
 import time
+import matplotlib.pyplot as plt
 
 import numpy as np
 import torch
@@ -41,8 +42,8 @@ def weights_init(m):
 
 # initialise training options
 opt = Options().parse()
-opt.save_results_after = 2
-opt.log_after = 2
+opt.save_results_after = 1
+opt.log_after = 1
 
 # ======================================
 # loading data
@@ -129,6 +130,8 @@ num_epochs = 10
 
 print(f"# of epochs: {num_epochs}")
 
+losses = []
+
 # epoch = one complete pass of the training dataset through the algorithm
 for epoch in range(start_epoch, num_epochs):
     print(f"-------------- Epoch # {epoch} --------------")
@@ -139,6 +142,8 @@ for epoch in range(start_epoch, num_epochs):
     # check whether LR needs to be updated
     if epoch > opt.lr_decay_after:
         update_lr(optimizer, epoch, opt)
+
+    losses_epoch = []
 
     # stochstic gradient descent with batch size = 2
     for batch, data in enumerate(data_loader):
@@ -162,12 +167,9 @@ for epoch in range(start_epoch, num_epochs):
         mu_tonemap_gt = mu_tonemap(ground_truth)
 
         # computing loss for n generated outputs (from n-iterations) ->
-        i = 0
         for image in output:
-            i += 1
             l1_loss += l1(mu_tonemap(image), mu_tonemap_gt)
             vgg_loss += perceptual_loss(mu_tonemap(image), mu_tonemap_gt)
-            print(i)
 
         # averaged over n iterations
         l1_loss /= len(output)
@@ -179,6 +181,8 @@ for epoch in range(start_epoch, num_epochs):
 
         # FHDR loss function
         loss = l1_loss + (vgg_loss * 10)
+        losses_epoch.append(loss.item())
+        
 
         # output is the final reconstructed image i.e. last in the array of outputs of n iterations
         output = output[-1]
@@ -215,6 +219,9 @@ for epoch in range(start_epoch, num_epochs):
                 batch=0,
                 path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),
             )
+    print(losses_epoch[-1])
+    losses.append(losses_epoch[-1])
+
 
     epoch_finish = time.time()
     time_taken = (epoch_finish - epoch_start)
@@ -225,3 +232,11 @@ for epoch in range(start_epoch, num_epochs):
         save_checkpoint(epoch, model)
 
 print("Training complete!")
+
+print(losses)
+
+"""
+plt.figure()
+plt.plot(np.linspace(1, 9, num=9), losses)
+plt.show()
+"""
