@@ -129,6 +129,9 @@ if opt.print_model:
 # ========================================
 num_epochs = 10
 
+# store the last loss for each epoch
+last_epoch_losses = []
+
 print(f"# of epochs: {num_epochs}")
 
 # epoch = one complete pass of the training dataset through the algorithm
@@ -143,7 +146,8 @@ for epoch in range(start_epoch, num_epochs):
         update_lr(optimizer, epoch, opt)
 
     # stochstic gradient descent with batch size = 2
-    for batch, data in enumerate(data_loader):
+    data_loader_length = len(data_loader)
+    for index, (batch, data) in enumerate(data_loader):
         optimizer.zero_grad()
 
         input = data["ldr_image"].data#.cuda()
@@ -190,6 +194,9 @@ for epoch in range(start_epoch, num_epochs):
         optimizer.step()
 
         running_loss += loss.item()
+
+        if index == data_loader_length-1:
+            last_epoch_losses.append(running_loss)
 
         if (batch + 1) % opt.log_after == 0:  # logging batch count and loss value
             print(
