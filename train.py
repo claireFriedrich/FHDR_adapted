@@ -41,6 +41,8 @@ def weights_init(m):
 
 # initialise training options
 opt = Options().parse()
+opt.save_results_after = 2
+opt.log_after = 2
 
 # ======================================
 # loading data
@@ -60,13 +62,14 @@ model = FHDR(iteration_count=opt.iter)
 # ========================================
 # gpu configuration
 # ========================================
-
+"""
 str_ids = opt.gpu_ids.split(",")
 opt.gpu_ids = []
 for str_id in str_ids:
     id = int(str_id)
     if id >= 0:
         opt.gpu_ids.append(id)
+"""
 
 # I am on CPU so do the following: 
 """
@@ -101,6 +104,7 @@ make_required_directories(mode="train")
 # ==================================================
 #  loading checkpoints if continuing training
 # ==================================================
+print(opt)
 
 if opt.continue_train:
     try:
@@ -125,8 +129,9 @@ num_epochs = 10
 
 print(f"# of epochs: {num_epochs}")
 
+# epoch = one complete pass of the training dataset through the algorithm
 for epoch in range(start_epoch, num_epochs):
-    print(f"Epoch # {epoch}")
+    print(f"-------------- Epoch # {epoch} --------------")
 
     epoch_start = time.time()
     running_loss = 0
@@ -135,9 +140,8 @@ for epoch in range(start_epoch, num_epochs):
     if epoch > opt.lr_decay_after:
         update_lr(optimizer, epoch, opt)
 
-    # stochstic gradient descent with batch size = 3
-    for batch, data in enumerate(tqdm(data_loader)):
-
+    # stochstic gradient descent with batch size = 2
+    for batch, data in enumerate(data_loader):
         optimizer.zero_grad()
 
         input = data["ldr_image"].data#.cuda()
@@ -158,9 +162,12 @@ for epoch in range(start_epoch, num_epochs):
         mu_tonemap_gt = mu_tonemap(ground_truth)
 
         # computing loss for n generated outputs (from n-iterations) ->
+        i = 0
         for image in output:
+            i += 1
             l1_loss += l1(mu_tonemap(image), mu_tonemap_gt)
             vgg_loss += perceptual_loss(mu_tonemap(image), mu_tonemap_gt)
+            print(i)
 
         # averaged over n iterations
         l1_loss /= len(output)
@@ -210,9 +217,9 @@ for epoch in range(start_epoch, num_epochs):
             )
 
     epoch_finish = time.time()
-    time_taken = (epoch_finish - epoch_start) // 60
+    time_taken = (epoch_finish - epoch_start)
 
-    print("End of epoch {}. Time taken: {} minutes.".format(epoch, int(time_taken)))
+    print("End of epoch {}. Time taken: {} s.".format(epoch, int(time_taken)))
 
     if epoch % opt.save_ckpt_after == 0:
         save_checkpoint(epoch, model)

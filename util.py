@@ -15,6 +15,7 @@ def load_checkpoint(model, ckpt_path):
 
 
 def make_required_directories(mode):
+    print(f"Mode = {mode}")
     if mode == "train":
         if not os.path.exists("./checkpoints"):
             print("Making checkpoints directory")

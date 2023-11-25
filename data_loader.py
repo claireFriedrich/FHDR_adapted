@@ -26,9 +26,9 @@ class HDRDataset(Dataset):
         self.batch_size = opt.batch_size
 
         if mode == "train":
-            self.dataset_path = os.path.join("./dataset_128/dataset_128", "train")
+            self.dataset_path = os.path.join("./dataset/mixed", "train")
         else:
-            self.dataset_path = os.path.join("./dataset_128/dataset_128", "test")
+            self.dataset_path = os.path.join("./dataset/mixed", "test")
 
         self.ldr_data_path = os.path.join(self.dataset_path, "LDR")
         self.hdr_data_path = os.path.join(self.dataset_path, "HDR")
@@ -90,16 +90,3 @@ class HDRDataset(Dataset):
         Returns the numbre of LDR images that are taken in one batch.
         """
         return len(self.ldr_image_names) // self.batch_size * self.batch_size
-
-# set the options that we want for training, all default
-opt = Options().parse()
-
-# build the dataset
-dataset = HDRDataset(mode="train", opt=opt)
-data_loader = DataLoader(dataset, batch_size=opt.batch_size, shuffle=True)
-
-print("Training samples: ", len(dataset))
-
-# access the first element of the training list
-items_in_dataset = dataset[0]
-print(items_in_dataset['path'])
