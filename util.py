@@ -82,10 +82,15 @@ def save_ldr_image(img_tensor, batch, path):
 def save_checkpoint(epoch, model):
     """ Saving model checkpoint """
 
+    # create a path for the checkpoint file
     checkpoint_path = os.path.join("./checkpoints", "epoch_" + str(epoch) + ".ckpt")
+    # create a path for the latest checkpoint file
+    # store the latest model state, often overwritten with each new checkpoint saved
     latest_path = os.path.join("./checkpoints", "latest.ckpt")
+    # save the state of the model at the current epoch
     torch.save(model.state_dict(), checkpoint_path)
     torch.save(model.state_dict(), latest_path)
+    # save the current epoch number (plus one)
     np.savetxt("./checkpoints/state.txt", [epoch + 1], fmt="%d")
     print("Saved checkpoint for epoch ", epoch)
 

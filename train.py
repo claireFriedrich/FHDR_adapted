@@ -29,6 +29,8 @@ from util import (
 # here they use VGG19 --> 19 convolutional layers
 from vgg import VGGLoss
 
+from sklearn.model_selection import KFold
+
 
 def weights_init(m):
     """
@@ -75,7 +77,7 @@ print(opt.gpu_ids)
 """
 
 # set gpu device
-"""
+
 if len(opt.gpu_ids) > 0:
     assert torch.cuda.is_available()
     assert torch.cuda.device_count() >= len(opt.gpu_ids)
@@ -86,7 +88,7 @@ if len(opt.gpu_ids) > 0:
         model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
 
     model.cuda()
-    """
+    
 
 # ========================================
 #  initialising losses and optimizer
@@ -121,6 +123,7 @@ if opt.print_model:
 # ========================================
 #  training
 # ========================================
+
 
 for epoch in range(start_epoch, opt.epochs + 1):
 
