@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --chdir /scratch/izar/cfriedri
+#SBATCH --chdir /scratch/izar/ckalberm
 #SBATCH --nodes 1
 #SBATCH --ntasks 1
 #SBATCH --gres=gpu:1
@@ -7,7 +7,7 @@
 
 echo STARTING AT `date`
 
-cd /home/cfriedri/FHDR_adapted
+cd /home/ckalberm/FHDR_adapted
 echo SUCCESSFULLY CHANGED LOCATION
 
 python3 -u train.py 

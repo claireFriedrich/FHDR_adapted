@@ -66,7 +66,7 @@ class FeedbackBlock(nn.Module):
 
     def forward(self, x):
         if self.should_reset:
-            self.last_hidden = torch.zeros(x.size())#.cuda()
+            self.last_hidden = torch.zeros(x.size()).cuda()
             self.last_hidden.copy_(x)
             self.should_reset = False
 
@@ -102,7 +102,7 @@ class DilatedResidualDenseBlock(nn.Module):
 
     def forward(self, x):
         if self.should_reset:
-            self.last_hidden = torch.zeros(x.size())#.cuda()
+            self.last_hidden = torch.zeros(x.size()).cuda()
             self.last_hidden.copy_(x)
             self.should_reset = False
 

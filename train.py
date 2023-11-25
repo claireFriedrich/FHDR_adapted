@@ -73,13 +73,13 @@ for str_id in str_ids:
 """
 
 # I am on CPU so do the following: 
-"""
+
 opt.gpu_ids = -1
 print(opt.gpu_ids)
-"""
+
 
 # set gpu device
-"""
+
 if len(opt.gpu_ids) > 0:
     assert torch.cuda.is_available()
     assert torch.cuda.device_count() >= len(opt.gpu_ids)
@@ -90,7 +90,7 @@ if len(opt.gpu_ids) > 0:
         model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
 
     model.cuda()
-    """
+    
 
 # ========================================
 #  initialising losses and optimizer
@@ -126,7 +126,7 @@ if opt.print_model:
 # ========================================
 #  training
 # ========================================
-num_epochs = 10
+num_epochs = 10000
 
 print(f"# of epochs: {num_epochs}")
 
@@ -149,8 +149,8 @@ for epoch in range(start_epoch, num_epochs):
     for batch, data in enumerate(data_loader):
         optimizer.zero_grad()
 
-        input = data["ldr_image"].data#.cuda()
-        ground_truth = data["hdr_image"].data#.cuda()
+        input = data["ldr_image"].data.cuda()
+        ground_truth = data["hdr_image"].data.cuda()
 
         # TODO: here is the problem of memory allocation
         # RuntimeError: [enforce fail at alloc_cpu.cpp:80] data. DefaultCPUAllocator: not enough memory: you tried to allocate 15147008000 bytes.
