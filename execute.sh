@@ -10,6 +10,6 @@ echo STARTING AT `date`
 cd /home/ckalberm/FHDR_adapted
 echo SUCCESSFULLY CHANGED LOCATION
 
-python3 -u train.py
+python3 -u train.py 
 
 echo FINISHED at `date`
