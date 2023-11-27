@@ -16,6 +16,9 @@ from vgg import VGGLoss
 
 # initialise options
 opt = Options().parse()
+opt.log_scores = True
+
+print(opt)
 
 # ======================================
 # loading data
