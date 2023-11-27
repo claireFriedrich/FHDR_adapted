@@ -33,6 +33,7 @@ from vgg import VGGLoss
 
 from sklearn.model_selection import train_test_split
 
+datatype = "clear"
 
 def weights_init(m):
     """
@@ -138,7 +139,7 @@ losses_train = []
 losses_validation = []
 
 # epoch = one complete pass of the training dataset through the algorithm
-for epoch in range(start_epoch, num_epochs):
+for epoch in range(start_epoch, num_epochs + 1):
     print(f"-------------- Epoch # {epoch} --------------")
 
     epoch_start = time.time()
@@ -161,7 +162,6 @@ for epoch in range(start_epoch, num_epochs):
         # TODO: here is the problem of memory allocation
         # RuntimeError: [enforce fail at alloc_cpu.cpp:80] data. DefaultCPUAllocator: not enough memory: you tried to allocate 15147008000 bytes.
         # forward pass -> only with input image, compute weights for the input and later compare with the GT in loss
-        print("About to make a prediciton with the input and the model ......")
         output = model(input)
 
         l1_loss = 0
@@ -280,4 +280,4 @@ print("Training complete!")
 print(f"Training losses: {losses_train}")
 print(f"Validation losses: {losses_validation}")
 
-plot_losses(losses_train, losses_validation, num_epochs, f"loss_{num_epochs}_epochs")
+plot_losses(losses_train, losses_validation, num_epochs, f"{datatype}_loss_{num_epochs}_epochs")
