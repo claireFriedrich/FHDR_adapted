@@ -129,7 +129,7 @@ if opt.print_model:
 # ========================================
 #  training
 # ========================================
-num_epochs = 200
+num_epochs = 500
 
 print(f"# of epochs: {num_epochs}")
 
@@ -198,6 +198,7 @@ for epoch in range(start_epoch, num_epochs):
 
         running_loss += loss.item()
 
+        """"
         if (batch + 1) % opt.log_after == 0:  # logging batch count and loss value
             print(
                 "Epoch: {} ; Batch: {} ; Training loss: {}".format(
@@ -205,6 +206,7 @@ for epoch in range(start_epoch, num_epochs):
                 )
             )
             running_loss = 0
+        """
 
         if (batch + 1) % opt.save_results_after == 0:  # save image results
             save_ldr_image(
