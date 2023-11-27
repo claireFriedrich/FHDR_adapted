@@ -23,6 +23,7 @@ from util import (
     save_hdr_image,
     save_ldr_image,
     update_lr,
+    plot_losses
 )
 # where they define the model 
 # VGG = classical/standard convolutional neural network architecture. 3x3 filters. SImple model. Just pooling, convolutional layers and 1 fully connected layer.
@@ -279,8 +280,4 @@ print("Training complete!")
 print(f"Training losses: {losses_train}")
 print(f"Validation losses: {losses_validation}")
 
-"""
-plt.figure()
-plt.plot(np.linspace(1, 9, num=9), losses)
-plt.show()
-"""
+plot_losses(losses_train, losses_validation num_epochs, f"loss_{num_epochs}_epochs")
