@@ -133,7 +133,8 @@ num_epochs = 200
 
 print(f"# of epochs: {num_epochs}")
 
-losses = []
+losses_train = []
+losses_validation = []
 
 # epoch = one complete pass of the training dataset through the algorithm
 for epoch in range(start_epoch, num_epochs):
@@ -223,8 +224,8 @@ for epoch in range(start_epoch, num_epochs):
                 batch=0,
                 path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),
             )
-    print(losses_epoch[-1])
-    losses.append(losses_epoch[-1])
+    print(f"Training loss: {losses_epoch[-1]}")
+    losses_train.append(losses_epoch[-1])
 
     # VALIDATION LOOP
     # set model to evaluation mode
@@ -256,7 +257,8 @@ for epoch in range(start_epoch, num_epochs):
 
     # Calculate average validation loss for the entire validation dataset
     average_val_loss = sum(val_losses) / len(val_losses)
-    print(f"Validation Loss: {average_val_loss}")
+    print(f"Average validation Loss: {average_val_loss}")
+    losses_validation.append(average_val_loss)
 
     # set model back to training mode
     model.train()  
@@ -272,7 +274,8 @@ for epoch in range(start_epoch, num_epochs):
 
 print("Training complete!")
 
-print(losses)
+print(f"Training losses: {losses_train}")
+print(f"Validation losses: {losses_validation}")
 
 """
 plt.figure()
