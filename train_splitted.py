@@ -23,6 +23,7 @@ from util import (
     save_hdr_image,
     save_ldr_image,
     update_lr,
+    plot_losses
 )
 # where they define the model 
 # VGG = classical/standard convolutional neural network architecture. 3x3 filters. SImple model. Just pooling, convolutional layers and 1 fully connected layer.
@@ -197,6 +198,7 @@ for epoch in range(start_epoch, num_epochs):
 
         running_loss += loss.item()
 
+        """
         if (batch + 1) % opt.log_after == 0:  # logging batch count and loss value
             print(
                 "Epoch: {} ; Batch: {} ; Training loss: {}".format(
@@ -204,6 +206,7 @@ for epoch in range(start_epoch, num_epochs):
                 )
             )
             running_loss = 0
+        """
 
         if (batch + 1) % opt.save_results_after == 0:  # save image results
             save_ldr_image(
@@ -223,7 +226,6 @@ for epoch in range(start_epoch, num_epochs):
                 batch=0,
                 path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),
             )
-    print(losses_epoch[-1])
     losses.append(losses_epoch[-1])
 
     # VALIDATION LOOP
@@ -274,8 +276,4 @@ print("Training complete!")
 
 print(losses)
 
-"""
-plt.figure()
-plt.plot(np.linspace(1, 9, num=9), losses)
-plt.show()
-"""
+plot_training_losses(losses, num_epochs, f"training_loss_{num_epochs}_epochs")
