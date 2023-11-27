@@ -37,7 +37,8 @@ def weights_init(m):
     """
     classname = m.__class__.__name__
     if classname.find("Conv") != -1:
-        m.weight.data.normal_(0.0, 0.0)
+        # std 0.0 -> runtime error so changed to 0.01
+        m.weight.data.normal_(0.0, 0.01)
 
 
 # initialise training options
@@ -63,20 +64,13 @@ model = FHDR(iteration_count=opt.iter)
 # ========================================
 # gpu configuration
 # ========================================
-"""
+
 str_ids = opt.gpu_ids.split(",")
 opt.gpu_ids = []
 for str_id in str_ids:
     id = int(str_id)
     if id >= 0:
         opt.gpu_ids.append(id)
-"""
-
-# I am on CPU so do the following: 
-
-opt.gpu_ids = -1
-print(opt.gpu_ids)
-
 
 # set gpu device
 
@@ -126,7 +120,7 @@ if opt.print_model:
 # ========================================
 #  training
 # ========================================
-num_epochs = 10000
+num_epochs = 200
 
 print(f"# of epochs: {num_epochs}")
 
