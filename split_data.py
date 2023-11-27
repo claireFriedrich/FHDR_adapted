@@ -32,6 +32,10 @@ for folder in folders:
     if not os.path.exists(f"./dataset/{folder}/test/LDR"):
         print(f"Making {folder}/test/LDR directory")
         os.makedirs(f"./dataset/{folder}/test/LDR")
+    
+    if not os.path.exists(f"./dataset/{folder}/test/HDR"):
+        print(f"Making {folder}/test/HDR directory")
+        os.makedirs(f"./dataset/{folder}/test/HDR")
 
 
 # move the data to the right directory
@@ -76,6 +80,13 @@ for idx, folder in enumerate(folders):
             dst_path = f"./dataset/{folder}/test/LDR"
             if not(os.path.isfile(dst_path)):
                 if not(os.path.isfile(f"./dataset/{folder}/train/LDR/{os.path.basename(src_path)}")):
+                    shutil.copy(src_path, dst_path)
+
+        if '_ref.hdr' in filename:
+            src_path = os.path.join(data_path, filename)
+            dst_path = f"./dataset/{folder}/test/HDR"
+            if not(os.path.isfile(dst_path)):
+                if not(os.path.isfile(f"./dataset/{folder}/train/HDR/{os.path.basename(src_path)}")):
                     shutil.copy(src_path, dst_path) 
                     num_test += 1
 
