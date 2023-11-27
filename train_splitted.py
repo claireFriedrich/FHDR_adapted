@@ -131,7 +131,7 @@ if opt.print_model:
 # ========================================
 #  training
 # ========================================
-num_epochs = 200
+num_epochs = 500
 
 print(f"# of epochs: {num_epochs}")
 

@@ -26,9 +26,9 @@ class HDRDataset(Dataset):
         self.batch_size = opt.batch_size
 
         if mode == "train":
-            self.dataset_path = os.path.join("./dataset/clear", "train")
+            self.dataset_path = os.path.join("./dataset/overcast", "train")
         else:
-            self.dataset_path = os.path.join("./dataset/clear", "test")
+            self.dataset_path = os.path.join("./dataset/overcast", "test")
 
         self.ldr_data_path = os.path.join(self.dataset_path, "LDR")
         self.hdr_data_path = os.path.join(self.dataset_path, "HDR")
