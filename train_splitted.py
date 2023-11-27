@@ -33,7 +33,11 @@ from vgg import VGGLoss
 
 from sklearn.model_selection import train_test_split
 
-datatype = "clear"
+datatype = "mixed"
+
+if not os.path.exists(f"./plots"):
+        print(f"Making plot directory")
+        os.makedirs(f"./plots")
 
 def weights_init(m):
     """
@@ -54,7 +58,7 @@ opt.log_after = 1
 # loading data
 # ======================================
 
-dataset = HDRDataset(mode="train", opt=opt)
+dataset = HDRDataset(mode="train", opt=opt, data=datatype)
 
 # split dataset into training and validation sets
 train_dataset, val_dataset = train_test_split(dataset, test_size=0.2, random_state=42)
@@ -280,4 +284,4 @@ print("Training complete!")
 print(f"Training losses: {losses_train}")
 print(f"Validation losses: {losses_validation}")
 
-plot_losses(losses_train, losses_validation, num_epochs, f"{datatype}_loss_{num_epochs}_epochs")
+plot_losses(losses_train, losses_validation, num_epochs, f"plots/{datatype}_loss_{num_epochs}_epochs")
