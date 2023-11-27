@@ -10,6 +10,7 @@ echo STARTING AT `date`
 cd /home/ckalberm/FHDR_adapted
 echo SUCCESSFULLY CHANGED LOCATION
 
-python3 -u  test.py --ckpt_path /path/to/pth/checkpoint
+#python3 -u  test.py --ckpt_path /home/ckalberm/FHDR_adapted/checkpoints
+python3 -u  test.py 
 
 echo FINISHED at `date`

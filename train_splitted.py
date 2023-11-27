@@ -129,7 +129,7 @@ if opt.print_model:
 # ========================================
 #  training
 # ========================================
-num_epochs = 500
+num_epochs = 200
 
 print(f"# of epochs: {num_epochs}")
 
@@ -137,7 +137,7 @@ losses_train = []
 losses_validation = []
 
 # epoch = one complete pass of the training dataset through the algorithm
-for epoch in range(start_epoch, num_epochs):
+for epoch in range(start_epoch, num_epochs+1):
     print(f"-------------- Epoch # {epoch} --------------")
 
     epoch_start = time.time()
