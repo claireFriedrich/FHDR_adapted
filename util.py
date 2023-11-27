@@ -124,5 +124,6 @@ def plot_losses(training_losses, validation_losses, num_epochs, path):
     plt.plot(np.linspace(1, num_epochs, num=num_epochs), validation_losses, label="validation")
     plt.xlabel("epochs")
     plt.ylabel("loss")
+    plt.title(os.path.basename(os.path.normpath(path)))
     plt.legend()
     plt.savefig(path)
