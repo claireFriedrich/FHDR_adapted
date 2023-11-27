@@ -234,9 +234,3 @@ for epoch in range(start_epoch, num_epochs):
 print("Training complete!")
 
 print(losses)
-
-"""
-plt.figure()
-plt.plot(np.linspace(1, 9, num=9), losses)
-plt.show()
-"""
