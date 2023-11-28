@@ -7,7 +7,6 @@ if not os.path.exists("./dataset_nosplit"):
     os.makedirs("./dataset_nosplit")
 
 
-
 if not os.path.exists(f"./dataset_nosplit/train"):
     print(f"Making train directory")
     os.makedirs(f"./dataset_nosplit/train")
