@@ -284,4 +284,4 @@ print("Training complete!")
 print(f"Training losses: {losses_train}")
 print(f"Validation losses: {losses_validation}")
 
-plot_losses(losses_train, losses_validation, num_epochs, f"plots/mantiuk_loss_{num_epochs}_epochs")
+plot_losses(losses_train, losses_validation, num_epochs, f"plots/nosplit_loss_{num_epochs}_epochs")
