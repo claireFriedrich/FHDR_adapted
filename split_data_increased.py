@@ -21,12 +21,32 @@ if not os.path.exists(f"./dataset/test"):
         print(f"Making test directory")
         os.makedirs(f"./dataset/test")
 
+# create HDR train folder
+if not os.path.exists(f"dataset/train/HDR"):
+    print(f"Making train HDR directory")
+    os.makedirs(f"dataset/train/HDR")
+
+# create LDR train folder 
+if not os.path.exists(f"dataset/train/LDR"):
+    print(f"Making train LDR directory")
+    os.makedirs(f"dataset/train/LDR")
+
+# create HDR test folder
+if not os.path.exists(f"dataset/test/HDR"):
+    print(f"Making test HDR directory")
+    os.makedirs(f"dataset/test/HDR")
+    
+# create LDR test folder
+if not os.path.exists(f"dataset/test/LDR"):
+    print(f"Making test LDR directory")
+    os.makedirs(f"dataset/test/LDR")
+
 
 # ========================================
 # Moving the training data into the corresponding folders
 # ========================================
 
-data_path_train = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/dataset/tile"
+data_path_train = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/video_match_new/tile"
 
 # ref -> HDR ground truth image
 list_ref_train = [fn for fn in os.listdir(data_path_train) if '_ref' in fn]
@@ -57,7 +77,7 @@ for i in range(len(lists_training)):
 # Moving the test data into the corresponding folders
 # ========================================
 
-data_path_test = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/dataset"
+data_path_test = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/video_match_new"
 
 # ref -> HDR ground truth image
 list_ref_test = [fn for fn in os.listdir(data_path_test) if '_ref' in fn]
@@ -83,5 +103,5 @@ for i in range(len(lists_test)):
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
     
-    
+
 print('All files have been moved accordingly')
