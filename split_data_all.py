@@ -33,12 +33,12 @@ if not os.path.exists(f"dataset_nosplit/test/HDR"):
 
 
 # move the data to the right directory
-data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/video_match128/video_match128"
+data_path = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/dataset/tile"
 
 list_ldr = [fn for fn in os.listdir(data_path) if fn.endswith('_video.png')]
 print("LDR images:", len(list_ldr))
 list_hdr = [fn for fn in os.listdir(data_path) if fn.endswith('_ref.hdr')]
-print("Clear:", len(list_hdr))
+print("HDR images:", len(list_hdr))
 
 ldr_train = list_ldr[3:]
 ldr_test = list_ldr[:3]
