@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 import torch
 
+import matplotlib.pyplot as plt
+
 
 def load_checkpoint(model, ckpt_path):
     """ loading checkpoints for continuing training or evaluation """
@@ -102,3 +104,26 @@ def update_lr(optimizer, epoch, opt):
         param_group["lr"] = new_lr
 
     print("Learning rate decayed. Updated LR is: %.6f" % new_lr)
+
+
+def plot_losses(training_losses, validation_losses, num_epochs, path):
+    """
+    Plots the training losses in function of the number of epochs. 
+
+    Args: 
+        training_losses: list of the training loss per epoch
+        validation_losses: list of the validation loss per epoch
+        num_epochs: int, the number of epochs used for training
+        path: str
+    
+    Returns: 
+        Saves a plot of the losses
+    """
+    plt.figure()
+    plt.plot(np.linspace(1, num_epochs, num=num_epochs), training_losses, label="training")
+    plt.plot(np.linspace(1, num_epochs, num=num_epochs), validation_losses, label="validation")
+    plt.xlabel("epochs")
+    plt.ylabel("loss")
+    plt.title(os.path.basename(os.path.normpath(path)))
+    plt.legend()
+    plt.savefig(path)

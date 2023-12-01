@@ -16,12 +16,17 @@ from vgg import VGGLoss
 
 # initialise options
 opt = Options().parse()
+opt.log_scores = True
+
+print(opt)
+
+datatype = "mixed"
 
 # ======================================
 # loading data
 # ======================================
 
-dataset = HDRDataset(mode="test", opt=opt)
+dataset = HDRDataset(mode="test", opt=opt, data=datatype)
 data_loader = DataLoader(dataset, batch_size=opt.batch_size, shuffle=True)
 
 print("Testing samples: ", len(dataset))
@@ -60,6 +65,7 @@ make_required_directories(mode="test")
 
 avg_psnr = 0
 avg_ssim = 0
+avg_mse = 0
 
 print("Starting evaluation. Results will be saved in '/test_results' directory")
 
@@ -103,6 +109,7 @@ with torch.no_grad():
                 mse = mse_loss(
                     mu_tonemap(output.data[batch_ind]), mu_tonemap_gt.data[batch_ind]
                 )
+                avg_mse += mse.item()
                 psnr = 10 * np.log10(1 / mse.item())
 
                 avg_psnr += psnr
@@ -122,5 +129,6 @@ with torch.no_grad():
 if opt.log_scores:
     print("===> Avg. PSNR: {:.4f} dB".format(avg_psnr / len(dataset)))
     print("Avg SSIM -> " + str(avg_ssim / len(dataset)))
+    print("Avg MSE -> " + str(avg_mse / len(dataset)))
 
 print("Evaluation completed.")

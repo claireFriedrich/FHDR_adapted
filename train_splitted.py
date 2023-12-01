@@ -23,6 +23,7 @@ from util import (
     save_hdr_image,
     save_ldr_image,
     update_lr,
+    plot_losses
 )
 # where they define the model 
 # VGG = classical/standard convolutional neural network architecture. 3x3 filters. SImple model. Just pooling, convolutional layers and 1 fully connected layer.
@@ -32,6 +33,11 @@ from vgg import VGGLoss
 
 from sklearn.model_selection import train_test_split
 
+#datatype = "mixed"
+
+if not os.path.exists(f"./plots"):
+        print(f"Making plot directory")
+        os.makedirs(f"./plots")
 
 def weights_init(m):
     """
@@ -51,8 +57,8 @@ opt.log_after = 1
 # ======================================
 # loading data
 # ======================================
-
-dataset = HDRDataset(mode="train", opt=opt)
+datatype = "overcast"
+dataset = HDRDataset(mode="train", opt=opt, data=datatype)
 
 # split dataset into training and validation sets
 train_dataset, val_dataset = train_test_split(dataset, test_size=0.2, random_state=42)
@@ -137,7 +143,7 @@ losses_train = []
 losses_validation = []
 
 # epoch = one complete pass of the training dataset through the algorithm
-for epoch in range(start_epoch, num_epochs):
+for epoch in range(start_epoch, num_epochs + 1):
     print(f"-------------- Epoch # {epoch} --------------")
 
     epoch_start = time.time()
@@ -160,7 +166,6 @@ for epoch in range(start_epoch, num_epochs):
         # TODO: here is the problem of memory allocation
         # RuntimeError: [enforce fail at alloc_cpu.cpp:80] data. DefaultCPUAllocator: not enough memory: you tried to allocate 15147008000 bytes.
         # forward pass -> only with input image, compute weights for the input and later compare with the GT in loss
-        print("About to make a prediciton with the input and the model ......")
         output = model(input)
 
         l1_loss = 0
@@ -198,6 +203,7 @@ for epoch in range(start_epoch, num_epochs):
 
         running_loss += loss.item()
 
+        """"
         if (batch + 1) % opt.log_after == 0:  # logging batch count and loss value
             print(
                 "Epoch: {} ; Batch: {} ; Training loss: {}".format(
@@ -205,6 +211,7 @@ for epoch in range(start_epoch, num_epochs):
                 )
             )
             running_loss = 0
+        """
 
         if (batch + 1) % opt.save_results_after == 0:  # save image results
             save_ldr_image(
@@ -277,8 +284,4 @@ print("Training complete!")
 print(f"Training losses: {losses_train}")
 print(f"Validation losses: {losses_validation}")
 
-"""
-plt.figure()
-plt.plot(np.linspace(1, 9, num=9), losses)
-plt.show()
-"""
+plot_losses(losses_train, losses_validation, num_epochs, f"plots/{datatype}_loss_{num_epochs}_epochs")
