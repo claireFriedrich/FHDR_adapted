@@ -1,18 +1,16 @@
-import os
-import time
+"""Script to test/evaluate the trained model"""
 
 import numpy as np
 import torch
 import torch.nn as nn
 from skimage.measure import compare_ssim
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from data_loader import HDRDataset
 from model import FHDR
 from options import Options
 from util import make_required_directories, mu_tonemap, save_hdr_image, save_ldr_image
-from vgg import VGGLoss
 
 # initialise options
 opt = Options().parse()

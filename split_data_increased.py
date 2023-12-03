@@ -1,3 +1,5 @@
+"""File to split the downloaded data (tile) into train and test"""
+
 import os
 import shutil
 

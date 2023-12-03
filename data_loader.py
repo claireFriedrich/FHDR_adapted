@@ -9,8 +9,7 @@ import torch
 import torchvision.transforms as transforms
 from PIL import Image
 # NEWs
-from torch.utils.data import DataLoader, Dataset
-from options import Options
+from torch.utils.data import Dataset
 
 
 class HDRDataset(Dataset):

@@ -1,3 +1,5 @@
+"""File to split the downloaded data into clear, mixed and overcast weather conditions"""
+
 import os
 import shutil
 
