@@ -17,7 +17,7 @@ class HDRDataset(Dataset):
     Custom HDR dataset that returns a dictionary of LDR input image, HDR ground truth image and file path. 
     """
 
-    def __init__(self, mode, opt, data):
+    def __init__(self, mode, opt):
         """
         Build the Dataset instance.
         """
@@ -25,9 +25,9 @@ class HDRDataset(Dataset):
         self.batch_size = opt.batch_size
 
         if mode == "train":
-            self.dataset_path = os.path.join(f"./dataset/{data}", "train")
+            self.dataset_path = os.path.join(f"./dataset/train")
         else:
-            self.dataset_path = os.path.join(f"./dataset/{data}", "test")
+            self.dataset_path = os.path.join(f"./dataset/test")
 
         self.ldr_data_path = os.path.join(self.dataset_path, "LDR")
         self.hdr_data_path = os.path.join(self.dataset_path, "HDR")

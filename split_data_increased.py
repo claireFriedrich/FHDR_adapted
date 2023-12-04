@@ -62,13 +62,13 @@ lists_training = [list_ref_train, list_video_train]
 
 for i in range(len(lists_training)):
     for filename in lists_training[i]:
-        if '_ref' in filename:
+        if '_ref' and '.hdr' in filename:
             src_path = os.path.join(data_path_train, filename)
             dst_path = f"./dataset/train/HDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
         
-        if '_video' in filename:
+        if '_video' and '.png' in filename:
             src_path = os.path.join(data_path_train, filename)
             dst_path = f"./dataset/train/LDR"
             if not(os.path.isfile(dst_path)):
@@ -93,13 +93,13 @@ lists_test = [list_ref_test, list_video_test]
 
 for i in range(len(lists_test)):
     for filename in lists_test[i]:
-        if '_ref' in filename:
+        if '_ref' and '.hdr' in filename:
             src_path = os.path.join(data_path_test, filename)
             dst_path = f"./dataset/test/HDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
         
-        if '_video' in filename:
+        if '_video' and '.png' in filename:
             src_path = os.path.join(data_path_test, filename)
             dst_path = f"./dataset/test/LDR"
             if not(os.path.isfile(dst_path)):

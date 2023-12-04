@@ -29,7 +29,6 @@ from vgg import VGGLoss
 
 from sklearn.model_selection import train_test_split
 
-#datatype = "mixed"
 
 if not os.path.exists(f"./plots"):
         print(f"Making plot directory")
@@ -54,10 +53,7 @@ opt.log_after = 1
 # loading data
 # ======================================
 
-#dataset = HDRDataset(mode="train", opt=opt, data=datatype)
-# full new dataset
-data_ = "./"
-dataset = HDRDataset(mode="train", opt=opt, data=data_)
+dataset = HDRDataset(mode="train", opt=opt)
 
 # split dataset into training and validation sets
 train_dataset, val_dataset = train_test_split(dataset, test_size=0.2, random_state=42)
@@ -139,6 +135,7 @@ num_epochs = 200
 print(f"# of epochs: {num_epochs}")
 
 losses_train = []
+losses_train_vgg = []
 losses_validation = []
 
 # epoch = one complete pass of the training dataset through the algorithm
@@ -153,6 +150,7 @@ for epoch in range(start_epoch, num_epochs + 1):
         update_lr(optimizer, epoch, opt)
 
     losses_epoch = []
+    vgg_losses_epoch = []
 
     # TRAINING 
     # stochstic gradient descent with batch size = 2
@@ -180,13 +178,15 @@ for epoch in range(start_epoch, num_epochs + 1):
             l1_loss += l1(mu_tonemap(image), mu_tonemap_gt)
             vgg_loss += perceptual_loss(mu_tonemap(image), mu_tonemap_gt)
 
-        # averaged over n iterations
+        # averaged over n iterations (n output images for 1 input)
         l1_loss /= len(output)
         vgg_loss /= len(output)
 
         # averaged over batches
         l1_loss = torch.mean(l1_loss)
         vgg_loss = torch.mean(vgg_loss)
+
+        vgg_losses_epoch.append(vgg_loss)
 
         # FHDR loss function
         loss = l1_loss + (vgg_loss * 10)
@@ -232,6 +232,9 @@ for epoch in range(start_epoch, num_epochs + 1):
             )
     print(f"Training loss: {losses_epoch[-1]}")
     losses_train.append(losses_epoch[-1])
+
+    print(f"Training vgg loss: {vgg_losses_epoch[-1]}")
+    losses_train_vgg.append(vgg_losses_epoch[-1])
 
     # VALIDATION LOOP
     # set model to evaluation mode
