@@ -2,8 +2,7 @@ import os
 import shutil
 import numpy as np
 
-#data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/all_datasets"
-data_path = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/all_datasets"
+data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/all_datasets"
 
 sub_folders = ['train', 'test']
 sub_sub_folders = ['HDR', 'LDR']

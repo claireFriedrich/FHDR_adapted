@@ -2,8 +2,7 @@ import os
 import shutil
 import numpy as np
 
-#data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/all_datasets"
-data_path = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/all_datasets"
+data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/all_datasets"
 
 sub_folders = ['train', 'test']
 sub_sub_folders = ['HDR', 'LDR']
@@ -50,21 +49,25 @@ for image_folder in image_folders:
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_test_ldr += 1
+            continue
         elif filename.endswith('_ref.hdr'):
             dst_path = "./dataset_final/test/HDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_test_hdr += 1
-        elif not(filename.startswith(".")) and "_ref-" in filename and ".hdr" in filename:
+            continue
+        elif "_ref-" in filename and ".hdr" in filename:
             dst_path = "./dataset_final/train/HDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_train_hdr += 1
-        elif not(filename.startswith(".")) and "_video-" in filename and ".png" in filename:
+            continue
+        elif "_video-" in filename and ".png" in filename:
             dst_path = "./dataset_final/train/LDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_train_ldr += 1
+            continue
         
     print(f"- test HDR images: {count_test_hdr}")
     print(f"- test LDR images: {count_test_ldr}")
@@ -72,7 +75,7 @@ for image_folder in image_folders:
     print(f"- train LDR images: {count_train_ldr}")
 
 
-filenames_3400 = [fn for fn in os.listdir("dataset_final/train/LDR")]
-print(f"LDR train: {len(filenames_3400)}")
-filenames_6800 = [fn for fn in os.listdir("dataset_final/train/HDR")]
-print(f"HDR train: {len(filenames_6800)}")
+filenames_3400 = [fn for fn in os.listdir("dataset_final/train/HDR")]
+filenames_6800 = [fn for fn in os.listdir("dataset_final/train/LDR")]
+
+#print(list(set(filenames_6800) - set(filenames_3400)))
