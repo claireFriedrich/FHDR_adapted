@@ -54,12 +54,12 @@ for image_folder in image_folders:
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_test_hdr += 1
-        elif not(filename.startswith(".")) and "_ref-" in filename and ".hdr" in filename:
+        elif not(filename.startswith "_ref-" in filename and ".hdr" in filename:
             dst_path = "./dataset_final/train/HDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_train_hdr += 1
-        elif not(filename.startswith(".")) and "_video-" in filename and ".png" in filename:
+        elif "_video-" in filename and ".png" in filename:
             dst_path = "./dataset_final/train/LDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
@@ -75,3 +75,6 @@ filenames_3400 = [fn for fn in os.listdir("dataset_final/train/LDR")]
 print(f"LDR train: {len(filenames_3400)}")
 filenames_6800 = [fn for fn in os.listdir("dataset_final/train/HDR")]
 print(f"HDR train: {len(filenames_6800)}")
+
+print(list(set(filenames_6800) - set(filenames_3400)))
+print(len(list(set(filenames_6800) - set(filenames_3400))))

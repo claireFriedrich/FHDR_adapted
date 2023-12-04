@@ -75,3 +75,6 @@ filenames_3400 = [fn for fn in os.listdir("dataset_final/train/LDR")]
 print(f"LDR train: {len(filenames_3400)}")
 filenames_6800 = [fn for fn in os.listdir("dataset_final/train/HDR")]
 print(f"HDR train: {len(filenames_6800)}")
+
+print(list(set(filenames_6800) - set(filenames_3400)))
+print(len(list(set(filenames_6800) - set(filenames_3400))))
