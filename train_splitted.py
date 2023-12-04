@@ -4,13 +4,9 @@ Script for training the FHDR model.
 
 import os
 import time
-import matplotlib.pyplot as plt
 
-import numpy as np
 import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset
-from tqdm import tqdm
+from torch.utils.data import DataLoader
 
 from data_loader import HDRDataset
 from model import FHDR
@@ -138,7 +134,7 @@ if opt.print_model:
 # ========================================
 #  training
 # ========================================
-num_epochs = 500
+num_epochs = 200
 
 print(f"# of epochs: {num_epochs}")
 

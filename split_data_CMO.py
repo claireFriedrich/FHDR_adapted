@@ -1,3 +1,5 @@
+"""File to split the downloaded data into clear, mixed and overcast weather conditions"""
+
 import os
 import shutil
 
@@ -39,7 +41,7 @@ for folder in folders:
 
 
 # move the data to the right directory
-data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/video_match128/video_match128"
+data_path = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/video_match128"
 
 list_mixed = [fn for fn in os.listdir(data_path) if fn.startswith('01')]
 print("Mixed:", len(list_mixed))

@@ -1,3 +1,5 @@
+"""Some utility functions"""
+
 import os
 
 import cv2

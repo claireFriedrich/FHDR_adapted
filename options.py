@@ -1,4 +1,5 @@
 """Class to set the arguments for training the model on the dataset"""
+
 import argparse
 
 
