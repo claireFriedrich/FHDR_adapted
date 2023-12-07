@@ -1,5 +1,3 @@
-"""Class that defines and build the model that will be used to convert LDR (Low Dynamic Range) images to HDR (High Dynamical Range) images"""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,22 +5,28 @@ from torch.autograd import Variable
 
 
 class FHDR(nn.Module):
+    """
+    Class for a Fast High Dynamic Range (FHDR) model.
+    """
     def __init__(self, iteration_count):
         """
-        Builds the instance of the model by only specifying the number of iterations of the model.
-        Builds the different layers and feedback loops. 
+        Initializes the FHDR model.
         """
-        super(FHDR, self).__init__() # gives you access to methods in a superclass from the subclass that inherits from it
+        # gives access to methods in a superclass from the subclass that inherits from it
+        super(FHDR, self).__init__() 
         print("FHDR model initialised")
 
         self.iteration_count = iteration_count
 
+        # layers for initial feature extraction
         self.reflect_pad = nn.ReflectionPad2d(1)
         self.feb1 = nn.Conv2d(3, 64, kernel_size=3, padding=0)
         self.feb2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
 
+        # feedback block for iterative processing
         self.feedback_block = FeedbackBlock()
 
+        # layers for high-resolution reconstruction
         self.hrb1 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
         self.hrb2 = nn.Conv2d(64, 3, kernel_size=3, padding=0)
 
@@ -31,7 +35,7 @@ class FHDR(nn.Module):
 
     def forward(self, input):
         """
-        Defines the forward pass of the model to predict all the values at the different layers. 
+        Defines the forward pass of the model. 
         """
         outs = []
 
@@ -41,6 +45,7 @@ class FHDR(nn.Module):
         for i in range(self.iteration_count):
             fb_out = self.feedback_block(feb2)
 
+            # combining feedback and initial features
             FDF = fb_out + feb1
 
             hrb1 = F.relu(self.hrb1(FDF))
@@ -52,7 +57,13 @@ class FHDR(nn.Module):
 
 
 class FeedbackBlock(nn.Module):
+    """
+    Class for a feedback block that maintains the state across iterations.
+    """
     def __init__(self):
+        """
+        Initializes the feedback block that retains state across iterations.
+        """
         super(FeedbackBlock, self).__init__()
 
         self.compress_in = nn.Conv2d(128, 64, kernel_size=1, padding=0)
@@ -65,7 +76,11 @@ class FeedbackBlock(nn.Module):
         self.should_reset = True
 
     def forward(self, x):
+        """
+        Forward pass of the feedback block.
+        """
         if self.should_reset:
+            # initialize the hidden state for the feedback
             self.last_hidden = torch.zeros(x.size()).cuda()
             self.last_hidden.copy_(x)
             self.should_reset = False
@@ -85,12 +100,19 @@ class FeedbackBlock(nn.Module):
 
 
 class DilatedResidualDenseBlock(nn.Module):
+    """
+    Class for a dilated residual dense block.
+    """
     def __init__(self, nDenselayer=4, growthRate=32):
+        """
+        Initializes the dilated residual dense block.
+        """
         super(DilatedResidualDenseBlock, self).__init__()
 
         nChannels_ = 64
         modules = []
 
+        # creating multiple dense layers in the block
         for i in range(nDenselayer):
             modules.append(make_dense(nChannels_, growthRate))
             nChannels_ += growthRate
@@ -101,7 +123,11 @@ class DilatedResidualDenseBlock(nn.Module):
         self.conv_1x1 = nn.Conv2d(nChannels_, 64, kernel_size=1, padding=0, bias=False)
 
     def forward(self, x):
+        """
+        Forward pass of the dilated residual dense block.
+        """
         if self.should_reset:
+            # initialize the hidden state for the block
             self.last_hidden = torch.zeros(x.size()).cuda()
             self.last_hidden.copy_(x)
             self.should_reset = False
@@ -119,7 +145,13 @@ class DilatedResidualDenseBlock(nn.Module):
 
 
 class make_dense(nn.Module):
+    """
+    CLass for a dense Connection in the Residual Block.
+    """
     def __init__(self, nChannels, growthRate, kernel_size=3):
+        """
+        Initialize a dense connection in the residual block.
+        """
         super(make_dense, self).__init__()
         self.conv = nn.Conv2d(
             nChannels,
@@ -131,6 +163,9 @@ class make_dense(nn.Module):
         )
 
     def forward(self, x):
+        """
+        Forward pass of the dense connection.
+        """
         out = F.relu(self.conv(x))
         out = torch.cat((x, out), 1)
         return out
