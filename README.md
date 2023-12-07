@@ -82,7 +82,7 @@ The dataset should follow the following folder structure -
 
 - For evaluating on this dataset, download and unzip the folder, replace it with the `test` directory in the `dataset` folder, and refer to [Pretrained models](#pretrained-models) and [Evaluation](#evaluation).
 
-- The dataset in the structure asked by the model can be obtained by executing the file **`split_data.py`**. The folder that is put to the data path at the beginning of the file should have the following structure in order to be compatible with the splitting file:
+The dataset in the structure asked by the model can be obtained by executing the file **`split_data.py`**. The folder that is put to the data path at the beginning of the file should have the following structure in order to be compatible with the splitting file:
 ```
 > NAME_OF_THE_FOLDER_WITH_THE_DATA (put as data path)
   > raw_ref_video_hdr
