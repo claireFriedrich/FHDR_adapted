@@ -1,12 +1,17 @@
-"""Class that defines the model"""
-
 import torch
 import torch.nn as nn
 from torchvision import models
 
 
 class Vgg19(torch.nn.Module):
+    """
+    Class for a VGG19 feature extractor module.
+    """
     def __init__(self, requires_grad=False):
+        """
+        VGG19 feature extractor module.
+        Initialize a VGG19 network and defines slices for feature extraction.
+        """
         super(Vgg19, self).__init__()
         vgg_pretrained_features = models.vgg19(pretrained=True).features
         self.slice1 = torch.nn.Sequential()
@@ -29,6 +34,10 @@ class Vgg19(torch.nn.Module):
                 param.requires_grad = False
 
     def forward(self, X):
+        """
+        Forward pass through the VGG19 network.
+        Compute and return feature representations at different layers.
+        """
         h_relu1 = self.slice1(X)
         h_relu2 = self.slice2(h_relu1)
         h_relu3 = self.slice3(h_relu2)
@@ -39,13 +48,24 @@ class Vgg19(torch.nn.Module):
 
 
 class VGGLoss(nn.Module):
+    """
+    Class for a VGG19 loss module.
+    """
     def __init__(self):
+        """
+        Loss module using VGG feature representations.
+        Initialize the VGG network and define the loss function.
+        """
         super(VGGLoss, self).__init__()
         self.vgg = Vgg19().cuda()
         self.criterion = nn.L1Loss()
         self.weights = [1.0 / 32, 1.0 / 16, 1.0 / 8, 1.0 / 4, 1.0]
 
     def forward(self, x, y):
+        """
+        Forward pass for computing VGG loss between input images.
+        Compute the VGG loss using extracted features from the VGG network.
+        """
         x_vgg, y_vgg = self.vgg(x), self.vgg(y)
         loss = 0
         for i in range(len(x_vgg)):
