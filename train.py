@@ -1,56 +1,36 @@
-"""
-Script for training the FHDR model.
-"""
-
 import os
 import time
-
 import torch
 from torch.utils.data import DataLoader
-
 from data_loader import HDRDataset
 from model import FHDR
 from options import Options
-from util import (
-    load_checkpoint,
-    make_required_directories,
-    mu_tonemap,
-    save_checkpoint,
-    save_hdr_image,
-    save_ldr_image,
-    update_lr,
-    plot_losses
-)
-# where they define the model 
-# VGG = classical/standard convolutional neural network architecture. 3x3 filters. SImple model. Just pooling, convolutional layers and 1 fully connected layer.
-# Visual Geometry Group = university of oxford, the company that created the VGGNet, for image classification. 
-# here they use VGG19 --> 19 convolutional layers
+from util import (load_checkpoint, make_required_directories, mu_tonemap, save_checkpoint, save_hdr_image, save_ldr_image, update_lr, plot_losses)
+# VGGNet with 19 convolutional layers
 from vgg import VGGLoss
-
 from sklearn.model_selection import train_test_split
 
-
+# create a directory if it does not exist for the plot results
 if not os.path.exists(f"./plots"):
         print(f"Making plot directory")
         os.makedirs(f"./plots")
 
 def weights_init(m):
     """
-    Initializing the weights of the network as a first step.
+    Initialize the weights of the network.
     """
     classname = m.__class__.__name__
     if classname.find("Conv") != -1:
         # std 0.0 -> runtime error so changed to 0.01
         m.weight.data.normal_(0.0, 0.01)
 
-
-# initialise training options
+# initialize the training options
 opt = Options().parse()
 opt.save_results_after = 1
 opt.log_after = 1
 
 # ======================================
-# loading data
+# Load the data
 # ======================================
 
 dataset = HDRDataset(mode="train", opt=opt)
@@ -62,17 +42,18 @@ train_dataset, val_dataset = train_test_split(dataset, test_size=0.2, random_sta
 train_data_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=True)
 val_data_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False)
 
+# print the number of training and validation samples
 print("Training samples: ", len(train_data_loader))
 print("Validation samples: ", len(val_data_loader))
 
 # ========================================
-# model init
+# Model initialization
 # ========================================
 
 model = FHDR(iteration_count=opt.iter)
 
 # ========================================
-# gpu configuration
+# GPU configuration
 # ========================================
 
 str_ids = opt.gpu_ids.split(",")
@@ -82,8 +63,7 @@ for str_id in str_ids:
     if id >= 0:
         opt.gpu_ids.append(id)
 
-# set gpu device
-
+# set GPU device
 if len(opt.gpu_ids) > 0:
     assert torch.cuda.is_available()
     assert torch.cuda.device_count() >= len(opt.gpu_ids)
@@ -95,20 +75,22 @@ if len(opt.gpu_ids) > 0:
 
     model.cuda()
     
-
 # ========================================
-#  initialising losses and optimizer
+# Initialization of losses and optimizer
 # ========================================
 
 l1 = torch.nn.L1Loss()
+# using the VGGloss of the VGGNet
 perceptual_loss = VGGLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, betas=(0.9, 0.999))
 
+# create directories to save the training results
 make_required_directories(mode="train")
 
 # ==================================================
-#  loading checkpoints if continuing training
+# Load the checkpoints if continuing training
 # ==================================================
+
 print(opt)
 
 if opt.continue_train:
@@ -128,8 +110,10 @@ if opt.print_model:
     print(model)
 
 # ========================================
-#  training
+# Training
 # ========================================
+
+# define the number of epochs
 num_epochs = 200
 
 print(f"# of epochs: {num_epochs}")
@@ -138,42 +122,40 @@ losses_train = []
 losses_train_vgg = []
 losses_validation = []
 
-# epoch = one complete pass of the training dataset through the algorithm
+# epoch -> one complete pass of the training dataset through the algorithm
 for epoch in range(start_epoch, num_epochs + 1):
     print(f"-------------- Epoch # {epoch} --------------")
 
     epoch_start = time.time()
     running_loss = 0
 
-    # check whether LR needs to be updated
+    # check whether the learning rate needs to be updated
     if epoch > opt.lr_decay_after:
         update_lr(optimizer, epoch, opt)
 
     losses_epoch = []
     vgg_losses_epoch = []
 
-    # TRAINING 
+    # training loop
     # stochstic gradient descent with batch size = 2
     for batch, data in enumerate(train_data_loader):
         optimizer.zero_grad()
 
+        # get the LDR images
         input = data["ldr_image"].data.cuda()
+        # get the HDR images
         ground_truth = data["hdr_image"].data.cuda()
 
-        # TODO: here is the problem of memory allocation
-        # RuntimeError: [enforce fail at alloc_cpu.cpp:80] data. DefaultCPUAllocator: not enough memory: you tried to allocate 15147008000 bytes.
-        # forward pass -> only with input image, compute weights for the input and later compare with the GT in loss
+        # forward pass through the model
         output = model(input)
 
         l1_loss = 0
         vgg_loss = 0
 
-        # tonemapping ground truth ->
-        # TODO: if provided only with the tone mapping, also possible to run ???!!!??
-        # could then just replace this line by the provided tone-mapped image, no need to recompute the tone mapping
+        # tonemap the ground truth image
         mu_tonemap_gt = mu_tonemap(ground_truth)
 
-        # computing loss for n generated outputs (from n-iterations) ->
+        # computing loss for n generated outputs (from n-iterations)
         for image in output:
             l1_loss += l1(mu_tonemap(image), mu_tonemap_gt)
             vgg_loss += perceptual_loss(mu_tonemap(image), mu_tonemap_gt)
@@ -192,11 +174,10 @@ for epoch in range(start_epoch, num_epochs + 1):
         loss = l1_loss + (vgg_loss * 10)
         losses_epoch.append(loss.item())
         
-
-        # output is the final reconstructed image i.e. last in the array of outputs of n iterations
+        # output is the final reconstructed image so last in the array of outputs of n iterations
         output = output[-1]
 
-        # backpropagate and step
+        # backpropagate and optimization step
         loss.backward()
         optimizer.step()
 
@@ -212,32 +193,25 @@ for epoch in range(start_epoch, num_epochs + 1):
             running_loss = 0
         """
 
-        if (batch + 1) % opt.save_results_after == 0:  # save image results
-            save_ldr_image(
-                img_tensor=input,
-                batch=0,
-                path="./training_results/ldr_e_{}_b_{}.jpg".format(epoch, batch + 1),
-            )
-            save_hdr_image(
-                img_tensor=output,
-                batch=0,
-                path="./training_results/generated_hdr_e_{}_b_{}.hdr".format(
-                    epoch, batch + 1
-                ),
-            )
-            save_hdr_image(
-                img_tensor=ground_truth,
-                batch=0,
-                path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),
-            )
+        # save the results
+        if (batch + 1) % opt.save_results_after == 0: 
+            save_ldr_image(img_tensor=input, batch=0, path="./training_results/ldr_e_{}_b_{}.jpg".format(epoch, batch + 1),)
+            
+            save_hdr_image(img_tensor=output, batch=0, path="./training_results/generated_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
+            
+            save_hdr_image(img_tensor=ground_truth, batch=0, path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
+    
     print(f"Training loss: {losses_epoch[-1]}")
     losses_train.append(losses_epoch[-1])
 
     print(f"Training vgg loss: {vgg_losses_epoch[-1]}")
     losses_train_vgg.append(vgg_losses_epoch[-1])
 
-    # VALIDATION LOOP
-    # set model to evaluation mode
+# ========================================
+# Validation
+# ========================================
+
+    # validation loop -> set the model mode to evaluation
     model.eval()  
     val_losses = []
     with torch.no_grad():
@@ -247,7 +221,7 @@ for epoch in range(start_epoch, num_epochs + 1):
 
             output_val = model(input_val)
 
-            # calculate validation loss 
+            # calculate the validation loss 
             l1_loss_val = 0
             vgg_loss_val = 0
             mu_tonemap_gt_val = mu_tonemap(ground_truth_val)
@@ -264,14 +238,13 @@ for epoch in range(start_epoch, num_epochs + 1):
             val_loss = l1_loss_val + (vgg_loss_val * 10)
             val_losses.append(val_loss.item())
 
-    # Calculate average validation loss for the entire validation dataset
+    # calculate average validation loss for the entire validation dataset
     average_val_loss = sum(val_losses) / len(val_losses)
     print(f"Average validation Loss: {average_val_loss}")
     losses_validation.append(average_val_loss)
 
     # set model back to training mode
     model.train()  
-
 
     epoch_finish = time.time()
     time_taken = (epoch_finish - epoch_start)
@@ -280,6 +253,10 @@ for epoch in range(start_epoch, num_epochs + 1):
 
     if epoch % opt.save_ckpt_after == 0:
         save_checkpoint(epoch, model)
+
+# ========================================
+# Print the results
+# ========================================
 
 print("Training complete!")
 
