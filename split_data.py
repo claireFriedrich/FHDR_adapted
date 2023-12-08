@@ -4,6 +4,8 @@ import numpy as np
 
 #data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/all_datasets"
 data_path = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/all_datasets"
+# set the data path
+#data_path = "PATH_TO_THE_DATASET"
 
 sub_folders = ['train', 'test']
 sub_sub_folders = ['HDR', 'LDR']
@@ -15,7 +17,7 @@ train_ldr = os.path.join(data_path, "tile_ref_video_png")
 
 image_folders = [test_hdr, test_ldr, train_hdr, train_ldr]
 
-# create right folders
+# create the corresponding folders
 if not os.path.exists("./dataset_final"):
     print("Making final dataset directory")
     os.makedirs("./dataset_final")
@@ -30,8 +32,7 @@ for sub_folder in sub_folders:
             print(f"Making {sub_folder}/{sub_sub_folder} directory")
             os.makedirs(f"./dataset_final/{sub_folder}/{sub_sub_folder}")
 
-
-# moving the files to the proper directory
+# move the files to the corresponding directory
 for image_folder in image_folders:
     print(f"---------- Processing {image_folder} ----------")
     filenames = [fn for fn in os.listdir(image_folder)]

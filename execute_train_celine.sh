@@ -1,15 +1,19 @@
 #!/bin/bash
 #SBATCH --chdir /scratch/izar/ckalberm
-#SBATCH --nodes 1
-#SBATCH --ntasks 1
+#SBATCH --partition=gpu
+#SBATCH --qos=gpu_free
 #SBATCH --gres=gpu:1
-#SBATCH --mem 50G
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem 16G
 
 echo STARTING AT `date`
+nvidia-smi
 
 cd /home/ckalberm/FHDR_adapted
 echo SUCCESSFULLY CHANGED LOCATION
 
-python3 -u train_splitted.py 
+python3 -u train.py 
 
 echo FINISHED at `date`

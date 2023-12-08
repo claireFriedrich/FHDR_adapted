@@ -15,6 +15,6 @@ nvidia-smi
 cd /home/cfriedri/FHDR_adapted
 echo SUCCESSFULLY CHANGED LOCATION
 
-python3 -u train_splitted.py 
+python3 -u train.py 
 
 echo FINISHED at `date`
