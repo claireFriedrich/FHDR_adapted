@@ -35,7 +35,9 @@ class HDRDataset(Dataset):
         # paths to LDR and HDR images ->
 
         self.ldr_image_names = sorted(os.listdir(self.ldr_data_path))
+        print(f"#LDR images = {len(self.ldr_image_names)}")
         self.hdr_image_names = sorted(os.listdir(self.hdr_data_path))
+        print(f"#HDR images = {len(self.hdr_image_names)}")
 
     def __getitem__(self, index):
         """
@@ -59,7 +61,6 @@ class HDRDataset(Dataset):
         ldr_tensor = transform_ldr(ldr_sample)
 
         # transformations on HDR ground truth ->
-
         self.hdr_image_path = os.path.join(
             self.hdr_data_path, self.hdr_image_names[index]
         )
@@ -67,8 +68,6 @@ class HDRDataset(Dataset):
         hdr_sample = cv2.imread(self.hdr_image_path, -1).astype(np.float32)
 
         # transforms.ToTensor() is used for 8-bit [0, 255] range images; can't be used for [0, ∞) HDR images
-        # TODO: reshape HDR images from ?? to 256x256
-        # TODO: also reshape the LDR images
         transform_list = [
             transforms.Lambda(lambda img: torch.from_numpy(img.transpose((2, 0, 1)))),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
@@ -86,6 +85,7 @@ class HDRDataset(Dataset):
 
     def __len__(self):
         """
-        Returns the numbre of LDR images that are taken in one batch.
+        Returns the number of LDR images that are taken in one batch.
         """
+        print(f"batch_size = {self.batch_size}")
         return len(self.ldr_image_names) // self.batch_size * self.batch_size

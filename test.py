@@ -18,13 +18,11 @@ opt.log_scores = True
 
 print(opt)
 
-datatype = "mixed"
-
 # ======================================
 # loading data
 # ======================================
 
-dataset = HDRDataset(mode="test", opt=opt, data=datatype)
+dataset = HDRDataset(mode="test", opt=opt)
 data_loader = DataLoader(dataset, batch_size=opt.batch_size, shuffle=True)
 
 print("Testing samples: ", len(dataset))

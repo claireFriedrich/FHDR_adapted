@@ -62,8 +62,8 @@ train_dataset, val_dataset = train_test_split(dataset, test_size=0.2, random_sta
 train_data_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=True)
 val_data_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False)
 
-print("Training samples: ", len(train_data_loader))
-print("Validation samples: ", len(val_data_loader))
+print("Training samples in one batch: ", len(train_data_loader))
+print("Validation samples in one batch: ", len(val_data_loader))
 
 # ========================================
 # model init
@@ -155,52 +155,57 @@ for epoch in range(start_epoch, num_epochs + 1):
     # TRAINING 
     # stochstic gradient descent with batch size = 2
     for batch, data in enumerate(train_data_loader):
+        #print(f"data = {len(data)}")
         optimizer.zero_grad()
 
         input = data["ldr_image"].data.cuda()
+        #print(f"input LDR = {len(input)}")
         ground_truth = data["hdr_image"].data.cuda()
+        #print(f"input HDR = {len(ground_truth)}")
 
-        # TODO: here is the problem of memory allocation
-        # RuntimeError: [enforce fail at alloc_cpu.cpp:80] data. DefaultCPUAllocator: not enough memory: you tried to allocate 15147008000 bytes.
         # forward pass -> only with input image, compute weights for the input and later compare with the GT in loss
         output = model(input)
+        #print(f"output HDR = {len(output)}")
 
-        l1_loss = 0
+        #l1_loss = 0
         vgg_loss = 0
 
         # tonemapping ground truth ->
-        # TODO: if provided only with the tone mapping, also possible to run ???!!!??
-        # could then just replace this line by the provided tone-mapped image, no need to recompute the tone mapping
+        # TODO
         mu_tonemap_gt = mu_tonemap(ground_truth)
+        #print(f"GT HDR tonemapped: {len(mu_tonemap_gt)}")
 
         # computing loss for n generated outputs (from n-iterations) ->
         for image in output:
-            l1_loss += l1(mu_tonemap(image), mu_tonemap_gt)
+            #l1_loss += l1(mu_tonemap(image), mu_tonemap_gt)
             vgg_loss += perceptual_loss(mu_tonemap(image), mu_tonemap_gt)
 
         # averaged over n iterations (n output images for 1 input)
-        l1_loss /= len(output)
-        vgg_loss /= len(output)
+        #l1_loss /= len(output)
+        vgg_loss /= len(output) #float
 
         # averaged over batches
-        l1_loss = torch.mean(l1_loss)
+        #l1_loss = torch.mean(l1_loss)
         vgg_loss = torch.mean(vgg_loss)
 
         vgg_losses_epoch.append(vgg_loss)
 
         # FHDR loss function
-        loss = l1_loss + (vgg_loss * 10)
-        losses_epoch.append(loss.item())
+        #loss = l1_loss + (vgg_loss * 10)
+        #losses_epoch.append(loss.item())
+        losses_epoch.append(vgg_loss.item())
         
 
         # output is the final reconstructed image i.e. last in the array of outputs of n iterations
         output = output[-1]
 
         # backpropagate and step
-        loss.backward()
+        #loss.backward()
+        vgg_loss.backward()
         optimizer.step()
 
-        running_loss += loss.item()
+        #running_loss += loss.item()
+        running_loss += vgg_loss.item()
 
         """"
         if (batch + 1) % opt.log_after == 0:  # logging batch count and loss value
@@ -248,21 +253,22 @@ for epoch in range(start_epoch, num_epochs + 1):
             output_val = model(input_val)
 
             # calculate validation loss 
-            l1_loss_val = 0
+            #l1_loss_val = 0
             vgg_loss_val = 0
             mu_tonemap_gt_val = mu_tonemap(ground_truth_val)
 
             for image_val in output_val:
-                l1_loss_val += l1(mu_tonemap(image_val), mu_tonemap_gt_val)
+                #l1_loss_val += l1(mu_tonemap(image_val), mu_tonemap_gt_val)
                 vgg_loss_val += perceptual_loss(mu_tonemap(image_val), mu_tonemap_gt_val)
 
-            l1_loss_val /= len(output_val)
+            #l1_loss_val /= len(output_val)
             vgg_loss_val /= len(output_val)
-            l1_loss_val = torch.mean(l1_loss_val)
+            #l1_loss_val = torch.mean(l1_loss_val)
             vgg_loss_val = torch.mean(vgg_loss_val)
 
-            val_loss = l1_loss_val + (vgg_loss_val * 10)
-            val_losses.append(val_loss.item())
+            #val_loss = l1_loss_val + (vgg_loss_val * 10)
+            #val_losses.append(val_loss.item())
+            val_losses.append(vgg_loss_val.item())
 
     # Calculate average validation loss for the entire validation dataset
     average_val_loss = sum(val_losses) / len(val_losses)
@@ -286,4 +292,4 @@ print("Training complete!")
 print(f"Training losses: {losses_train}")
 print(f"Validation losses: {losses_validation}")
 
-plot_losses(losses_train, losses_validation, num_epochs, f"plots/_loss_{num_epochs}_epochs")
+plot_losses(losses_train, losses_validation, num_epochs, f"plots/_loss_vgg_{num_epochs}_epochs")
