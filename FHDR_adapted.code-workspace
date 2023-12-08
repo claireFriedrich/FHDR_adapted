@@ -1,10 +1,11 @@
 {
-    "folders": [
-        {
-            "path": "."
-        },
-        {
-            "path": "../../../scratch/izar/cfriedri"
-        }
-    ]
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../scratch/izar/cfriedri"
+		}
+	],
+	"settings": {}
 }
