@@ -6,3 +6,4 @@ checkpoints*/
 .vscode
 *.pyc
 *.sh
+*.code-workspace

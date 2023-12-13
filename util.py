@@ -125,3 +125,16 @@ def plot_losses(training_losses, validation_losses, num_epochs, path):
     plt.title(os.path.basename(os.path.normpath(path)))
     plt.legend()
     plt.savefig(path)
+
+
+def plot_psnr(psnr, num_epochs, path):
+    """
+    Plot the validation PSNR scores function of the number of epochs.
+    """
+    plt.figure()
+    plt.plot(np.linspace(1, num_epochs, num=num_epochs), psnr, label="training")
+    plt.xlabel("epochs")
+    plt.ylabel("PSNR [dB]")
+    plt.title(os.path.basename(os.path.normpath(path)))
+    plt.legend()
+    plt.savefig(path)

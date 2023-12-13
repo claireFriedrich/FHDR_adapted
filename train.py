@@ -5,14 +5,18 @@ Script for training the FHDR model.
 import os
 import time
 import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader
 from data_loader import HDRDataset
 from model import FHDR
 from options import Options
-from util import (load_checkpoint, make_required_directories, mu_tonemap, save_checkpoint, save_hdr_image, save_ldr_image, update_lr, plot_losses)
+from util import *
 # VGGNet with 19 convolutional layers
 from vgg import VGGLoss
 from sklearn.model_selection import train_test_split
+from skimage.measure import compare_ssim
+
+import numpy as np
 
 # create a directory if it does not exist for the plot results
 if not os.path.exists(f"./plots"):
@@ -68,6 +72,7 @@ for str_id in str_ids:
         opt.gpu_ids.append(id)
 
 # set GPU device
+"""
 if len(opt.gpu_ids) > 0:
     assert torch.cuda.is_available()
     assert torch.cuda.device_count() >= len(opt.gpu_ids)
@@ -78,6 +83,7 @@ if len(opt.gpu_ids) > 0:
         model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
 
     model.cuda()
+"""
     
 if torch.cuda.is_available():
     print(f"#GPUs = {torch.cuda.device_count()}")
@@ -89,12 +95,14 @@ else:
 
 print(f"Using GPU: {torch.cuda.get_device_name(device)}")
 
+model.to(device)
+
 # ========================================
 # Initialization of losses and optimizer
 # ========================================
 
 l1 = torch.nn.L1Loss()
-# using the VGGloss of the VGGNet
+# VGGloss of the VGGNet
 perceptual_loss = VGGLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, betas=(0.9, 0.999))
 
@@ -117,6 +125,7 @@ if opt.continue_train:
         start_epoch = 1
         model.apply(weights_init)
 else:
+    print("Checkpoint not found! Training from scratch.")
     start_epoch = 1
     model.apply(weights_init)
 
@@ -128,13 +137,17 @@ if opt.print_model:
 # ========================================
 
 # define the number of epochs
-num_epochs = 200
+num_epochs = 10
 
 print(f"# of epochs: {num_epochs}")
 
 losses_train = []
-losses_train_vgg = []
 losses_validation = []
+validation_psnr = []
+validation_ssim = []
+
+# define the mean squared error loss
+mse_loss = nn.MSELoss()
 
 # epoch -> one complete pass of the training dataset through the algorithm
 for epoch in range(start_epoch, num_epochs + 1):
@@ -156,12 +169,12 @@ for epoch in range(start_epoch, num_epochs + 1):
         optimizer.zero_grad()
 
         # get the LDR images
-        input = data["ldr_image"].data.cuda()
+        input_data = data["ldr_image"].data.to(device)
         # get the HDR images
-        ground_truth = data["hdr_image"].data.cuda()
+        ground_truth = data["hdr_image"].data.to(device)
 
         # forward pass through the model
-        output = model(input)
+        output = model(input_data)
 
         l1_loss = 0
         vgg_loss = 0
@@ -182,10 +195,8 @@ for epoch in range(start_epoch, num_epochs + 1):
         l1_loss = torch.mean(l1_loss)
         vgg_loss = torch.mean(vgg_loss)
 
-        vgg_losses_epoch.append(vgg_loss)
-
         # FHDR loss function
-        loss = l1_loss + (vgg_loss * 10)
+        loss = 0.1 * l1_loss + vgg_loss
         losses_epoch.append(loss.item())
         
         # output is the final reconstructed image so last in the array of outputs of n iterations
@@ -196,16 +207,6 @@ for epoch in range(start_epoch, num_epochs + 1):
         optimizer.step()
 
         running_loss += loss.item()
-
-        """"
-        if (batch + 1) % opt.log_after == 0:  # logging batch count and loss value
-            print(
-                "Epoch: {} ; Batch: {} ; Training loss: {}".format(
-                    epoch, batch + 1, running_loss / opt.log_after
-                )
-            )
-            running_loss = 0
-        """
 
         # save the results
         if (batch + 1) % opt.save_results_after == 0: 
@@ -224,8 +225,6 @@ for epoch in range(start_epoch, num_epochs + 1):
     print(f"Training loss: {losses_epoch[-1]}")
     losses_train.append(losses_epoch[-1])
 
-    print(f"Training vgg loss: {vgg_losses_epoch[-1]}")
-    losses_train_vgg.append(vgg_losses_epoch[-1])
 
 # ========================================
 # Validation
@@ -234,34 +233,76 @@ for epoch in range(start_epoch, num_epochs + 1):
     # validation loop -> set the model mode to evaluation
     model.eval()  
     val_losses = []
+    inter_psnr = []
+    inter_ssim = []
+
     with torch.no_grad():
         for val_batch, val_data in enumerate(val_data_loader):
-            input_val = val_data["ldr_image"].data.cuda()
-            ground_truth_val = val_data["hdr_image"].data.cuda()
+            input_val = val_data["ldr_image"].data.to(device)
+            ground_truth_val = val_data["hdr_image"].data.to(device)
 
             output_val = model(input_val)
 
             # calculate the validation loss 
             l1_loss_val = 0
             vgg_loss_val = 0
+            batch_psnr = 0
+            batch_ssim = 0
+
             mu_tonemap_gt_val = mu_tonemap(ground_truth_val)
 
             for image_val in output_val:
                 l1_loss_val += l1(mu_tonemap(image_val), mu_tonemap_gt_val)
                 vgg_loss_val += perceptual_loss(mu_tonemap(image_val), mu_tonemap_gt_val)
 
+                mse = mse_loss(mu_tonemap(image_val), mu_tonemap_gt_val)
+                psnr = 10 * np.log10(1 / mse.item())
+
+                batch_psnr += psnr
+
+                generated = (np.transpose(image_val.cpu().numpy(), (1, 2, 0)) + 1) / 2.0
+                real = (np.transpose(ground_truth_val.cpu().numpy(), (1, 2, 0))+ 1) / 2.0
+
+                # calculate the SSIM score
+                ssim = compare_ssim(generated, real, multichannel=True)
+                batch_ssim += ssim
+
+
+
             l1_loss_val /= len(output_val)
             vgg_loss_val /= len(output_val)
+
             l1_loss_val = torch.mean(l1_loss_val)
             vgg_loss_val = torch.mean(vgg_loss_val)
 
-            val_loss = l1_loss_val + (vgg_loss_val * 10)
+            val_loss = 0.1 * l1_loss_val + vgg_loss_val
             val_losses.append(val_loss.item())
+
+            # calculate the PSNR score
+            batch_psnr /= len(batch_psnr)
+            batch_avg_psnr = torch.mean(batch_psnr)
+            inter_psnr.append(batch_avg_psnr)
+
+            # calculate the PSNR score
+            batch_ssim /= len(batch_ssim)
+            batch_avg_ssim = torch.mean(batch_ssim)
+            inter_ssim.append(batch_avg_ssim)
+            
 
     # calculate average validation loss for the entire validation dataset
     average_val_loss = sum(val_losses) / len(val_losses)
     print(f"Average validation Loss: {average_val_loss}")
     losses_validation.append(average_val_loss)
+
+    # calculate average PSNR score for the entire validation dataset
+    avg_psnr = sum(inter_psnr) / len(inter_psnr)
+    print(f"Average PSNR score: {avg_psnr}")
+    validation_psnr.append(avg_psnr)
+
+    # calculate average SSIM score for the entire validation dataset
+    avg_ssim = sum(inter_ssim) / len(inter_ssim)
+    print(f"Average SSIM score: {avg_ssim}")
+    validation_ssim.append(avg_ssim)
 
     # set model back to training mode
     model.train()  
@@ -282,5 +323,8 @@ print("Training complete!")
 
 print(f"Training losses: {losses_train}")
 print(f"Validation losses: {losses_validation}")
+print(f"Average PSNR: {np.mean(validation_psnr)} dB")
+print(f"Average SSIM: {np.mean(validation_ssim)}")
 
 plot_losses(losses_train, losses_validation, num_epochs, f"plots/_loss_{num_epochs}_epochs")
+plot_psnr(validation_psnr, num_epochs, "plots/psnr_200_epochs_all_data")
