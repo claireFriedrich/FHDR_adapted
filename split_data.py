@@ -3,10 +3,10 @@
 import os
 import shutil
 import numpy as np
+import sys
 
 # set path to folder containingthe 4 data folders
-data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/all_datasets"
-#data_path = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/all_datasets"
+data_path = sys.argv[1]
 
 # ========================================
 # Folder creation
