@@ -1,11 +1,16 @@
+"""File to split the downloaded data (tile) into train and test"""
+
 import os
 import shutil
 import numpy as np
 
-#data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/all_datasets"
-data_path = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/all_datasets"
-# set the data path
-#data_path = "PATH_TO_THE_DATASET"
+# set path to folder containingthe 4 data folders
+data_path = "C:/Users/fricl/OneDrive/Documents/Suisse/EPFL/Cours/MA1/ML/all_datasets"
+#data_path = "C:/Users/Céline Kalbermatten/Documents/EPFL/MA1/Machine_Learning/all_datasets"
+
+# ========================================
+# Folder creation
+# ========================================
 
 sub_folders = ['train', 'test']
 sub_sub_folders = ['HDR', 'LDR']
@@ -18,21 +23,25 @@ train_ldr = os.path.join(data_path, "tile_ref_video_png")
 image_folders = [test_hdr, test_ldr, train_hdr, train_ldr]
 
 # create the corresponding folders
-if not os.path.exists("./dataset_final"):
+if not os.path.exists("./dataset"):
     print("Making final dataset directory")
-    os.makedirs("./dataset_final")
+    os.makedirs("./dataset")
 
 for sub_folder in sub_folders:
-    if not os.path.exists(f"./dataset_final/{sub_folder}"):
+    if not os.path.exists(f"./dataset/{sub_folder}"):
         print(f"Making {sub_folder} directory")
-        os.makedirs(f"./dataset_final/{sub_folder}")
+        os.makedirs(f"./dataset/{sub_folder}")
     
     for sub_sub_folder in sub_sub_folders:
-        if not os.path.exists(f"./dataset_final/{sub_folder}/{sub_sub_folder}"):
+        if not os.path.exists(f"./dataset/{sub_folder}/{sub_sub_folder}"):
             print(f"Making {sub_folder}/{sub_sub_folder} directory")
-            os.makedirs(f"./dataset_final/{sub_folder}/{sub_sub_folder}")
+            os.makedirs(f"./dataset/{sub_folder}/{sub_sub_folder}")
 
-# move the files to the corresponding directory
+
+# ===========================================
+# Moving data into the corresponding folders
+# ===========================================
+
 for image_folder in image_folders:
     print(f"---------- Processing {image_folder} ----------")
     filenames = [fn for fn in os.listdir(image_folder)]
@@ -47,22 +56,22 @@ for image_folder in image_folders:
         src_path = os.path.join(image_folder, filename)
 
         if filename.endswith('_video.png'):
-            dst_path = "./dataset_final/test/LDR"
+            dst_path = "./dataset/test/LDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_test_ldr += 1
         elif filename.endswith('_ref.hdr'):
-            dst_path = "./dataset_final/test/HDR"
+            dst_path = "./dataset/test/HDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_test_hdr += 1
         elif not(filename.startswith(".")) and "_ref-" in filename and ".hdr" in filename:
-            dst_path = "./dataset_final/train/HDR"
+            dst_path = "./dataset/train/HDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_train_hdr += 1
         elif not(filename.startswith(".")) and "_video-" in filename and ".png" in filename:
-            dst_path = "./dataset_final/train/LDR"
+            dst_path = "./dataset/train/LDR"
             if not(os.path.isfile(dst_path)):
                 shutil.copy(src_path, dst_path)
                 count_train_ldr += 1
@@ -73,7 +82,9 @@ for image_folder in image_folders:
     print(f"- train LDR images: {count_train_ldr}")
 
 
-filenames_3400 = [fn for fn in os.listdir("dataset_final/train/LDR")]
+filenames_3400 = [fn for fn in os.listdir("dataset/train/LDR")]
 print(f"LDR train: {len(filenames_3400)}")
-filenames_6800 = [fn for fn in os.listdir("dataset_final/train/HDR")]
+filenames_6800 = [fn for fn in os.listdir("dataset/train/HDR")]
 print(f"HDR train: {len(filenames_6800)}")
+
+print('All files have been moved accordingly!')

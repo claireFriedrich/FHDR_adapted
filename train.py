@@ -1,3 +1,7 @@
+"""
+Script for training the FHDR model.
+"""
+
 import os
 import time
 import torch
@@ -75,6 +79,16 @@ if len(opt.gpu_ids) > 0:
 
     model.cuda()
     
+if torch.cuda.is_available():
+    print(f"#GPUs = {torch.cuda.device_count()}")
+    for i in range(torch.cuda.device_count()):
+        device = torch.device(f"cuda:{i}")
+        print(f"GPU {i} Name:", torch.cuda.get_device_name(device))
+else:
+    print("No GPU available.")
+
+print(f"Using GPU: {torch.cuda.get_device_name(device)}")
+
 # ========================================
 # Initialization of losses and optimizer
 # ========================================
@@ -195,11 +209,17 @@ for epoch in range(start_epoch, num_epochs + 1):
 
         # save the results
         if (batch + 1) % opt.save_results_after == 0: 
-            save_ldr_image(img_tensor=input, batch=0, path="./training_results/ldr_e_{}_b_{}.jpg".format(epoch, batch + 1),)
+            save_ldr_image(img_tensor=input, 
+                           batch=0, 
+                           path="./training_results/ldr_e_{}_b_{}.jpg".format(epoch, batch + 1),)
             
-            save_hdr_image(img_tensor=output, batch=0, path="./training_results/generated_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
+            save_hdr_image(img_tensor=output, 
+                           batch=0, 
+                           path="./training_results/generated_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
             
-            save_hdr_image(img_tensor=ground_truth, batch=0, path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
+            save_hdr_image(img_tensor=ground_truth, 
+                           batch=0, 
+                           path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
     
     print(f"Training loss: {losses_epoch[-1]}")
     losses_train.append(losses_epoch[-1])

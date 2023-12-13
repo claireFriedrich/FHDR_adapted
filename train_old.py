@@ -1,6 +1,4 @@
-"""
-Script for training the FHDR model.
-"""
+
 
 import os
 import time

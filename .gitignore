@@ -5,4 +5,4 @@ checkpoints*/
 /__pycache__/
 .vscode
 *.pyc
-execute.sh
+*.sh
