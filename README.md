@@ -146,10 +146,6 @@ These models have been trained with the default options, on 256x256 size images 
 
 
 
-Here is a graph plotting the performance vs iteration count. 
-
-<img src="https://user-images.githubusercontent.com/24846546/71311250-ed28ab00-2415-11ea-9842-f84b5999161e.png" width="40%">
-
 Evaluation
 ----------
 

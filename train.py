@@ -137,14 +137,12 @@ if opt.print_model:
 # ========================================
 
 # define the number of epochs
-num_epochs = 10
+num_epochs = 200
 
 print(f"# of epochs: {num_epochs}")
 
 losses_train = []
 losses_validation = []
-validation_psnr = []
-validation_ssim = []
 
 # define the mean squared error loss
 mse_loss = nn.MSELoss()
@@ -196,7 +194,7 @@ for epoch in range(start_epoch, num_epochs + 1):
         vgg_loss = torch.mean(vgg_loss)
 
         # FHDR loss function
-        loss = 0.1 * l1_loss + vgg_loss
+        loss = l1_loss + 10*vgg_loss
         losses_epoch.append(loss.item())
         
         # output is the final reconstructed image so last in the array of outputs of n iterations
@@ -210,7 +208,7 @@ for epoch in range(start_epoch, num_epochs + 1):
 
         # save the results
         if (batch + 1) % opt.save_results_after == 0: 
-            save_ldr_image(img_tensor=input, 
+            save_ldr_image(img_tensor=input_data, 
                            batch=0, 
                            path="./training_results/ldr_e_{}_b_{}.jpg".format(epoch, batch + 1),)
             
@@ -233,8 +231,6 @@ for epoch in range(start_epoch, num_epochs + 1):
     # validation loop -> set the model mode to evaluation
     model.eval()  
     val_losses = []
-    inter_psnr = []
-    inter_ssim = []
 
     with torch.no_grad():
         for val_batch, val_data in enumerate(val_data_loader):
@@ -246,26 +242,12 @@ for epoch in range(start_epoch, num_epochs + 1):
             # calculate the validation loss 
             l1_loss_val = 0
             vgg_loss_val = 0
-            batch_psnr = 0
-            batch_ssim = 0
 
             mu_tonemap_gt_val = mu_tonemap(ground_truth_val)
 
             for image_val in output_val:
                 l1_loss_val += l1(mu_tonemap(image_val), mu_tonemap_gt_val)
                 vgg_loss_val += perceptual_loss(mu_tonemap(image_val), mu_tonemap_gt_val)
-
-                mse = mse_loss(mu_tonemap(image_val), mu_tonemap_gt_val)
-                psnr = 10 * np.log10(1 / mse.item())
-
-                batch_psnr += psnr
-
-                generated = (np.transpose(image_val.cpu().numpy(), (1, 2, 0)) + 1) / 2.0
-                real = (np.transpose(ground_truth_val.cpu().numpy(), (1, 2, 0))+ 1) / 2.0
-
-                # calculate the SSIM score
-                ssim = compare_ssim(generated, real, multichannel=True)
-                batch_ssim += ssim
 
 
 
@@ -275,34 +257,15 @@ for epoch in range(start_epoch, num_epochs + 1):
             l1_loss_val = torch.mean(l1_loss_val)
             vgg_loss_val = torch.mean(vgg_loss_val)
 
-            val_loss = 0.1 * l1_loss_val + vgg_loss_val
+            val_loss = l1_loss_val + 10*vgg_loss_val
             val_losses.append(val_loss.item())
 
-            # calculate the PSNR score
-            batch_psnr /= len(batch_psnr)
-            batch_avg_psnr = torch.mean(batch_psnr)
-            inter_psnr.append(batch_avg_psnr)
-
-            # calculate the PSNR score
-            batch_ssim /= len(batch_ssim)
-            batch_avg_ssim = torch.mean(batch_ssim)
-            inter_ssim.append(batch_avg_ssim)
-            
 
     # calculate average validation loss for the entire validation dataset
     average_val_loss = sum(val_losses) / len(val_losses)
     print(f"Average validation Loss: {average_val_loss}")
     losses_validation.append(average_val_loss)
 
-    # calculate average PSNR score for the entire validation dataset
-    avg_psnr = sum(inter_psnr) / len(inter_psnr)
-    print(f"Average PSNR score: {avg_psnr}")
-    validation_psnr.append(avg_psnr)
-
-    # calculate average SSIM score for the entire validation dataset
-    avg_ssim = sum(inter_ssim) / len(inter_ssim)
-    print(f"Average SSIM score: {avg_ssim}")
-    validation_ssim.append(avg_ssim)
 
     # set model back to training mode
     model.train()  
@@ -323,8 +286,5 @@ print("Training complete!")
 
 print(f"Training losses: {losses_train}")
 print(f"Validation losses: {losses_validation}")
-print(f"Average PSNR: {np.mean(validation_psnr)} dB")
-print(f"Average SSIM: {np.mean(validation_ssim)}")
 
 plot_losses(losses_train, losses_validation, num_epochs, f"plots/_loss_{num_epochs}_epochs")
-plot_psnr(validation_psnr, num_epochs, "plots/psnr_200_epochs_all_data")
