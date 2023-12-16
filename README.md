@@ -33,7 +33,7 @@ To better utilize the power of CNNs, the authors exploit the idea of feedback, w
 - [scikit-image](https://scikit-image.org/)
 - [tqdm](https://pypi.org/project/tqdm/)
 
-**`requirements.txt`** has is provided to install the necessary Python dependencies
+**`requirements.txt`** is provided to install the necessary Python dependencies
 
 ```sh
 pip install -r requirements.txt
@@ -146,7 +146,7 @@ These models have been trained with the default options, on 256x256 size images 
 
 
 
-Evaluation
+Evaluation of the model
 ----------
 
 The performance of the network can be evaluated using: 
