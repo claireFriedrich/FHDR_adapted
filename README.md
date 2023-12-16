@@ -1,4 +1,4 @@
-# A Feedback Network to resonstruct HDR images from LDR inputs
+# A Feedback Network to reconstruct HDR images from LDR inputs
 
 
 This repository is adapted from [the code](https://github.com/mukulkhanna/fhdr) linked to the [FHDR: HDR Image Reconstruction from a Single LDR Image using Feedback Network](https://arxiv.org/abs/1912.11463v1) authored by  Z. Khan, M. Khanna and S. Raman.
