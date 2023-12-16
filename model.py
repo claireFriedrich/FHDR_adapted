@@ -1,3 +1,5 @@
+"""Class that defines and build the model that will be used to convert LDR (Low Dynamic Range) images to HDR (High Dynamical Range) images"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -5,30 +7,23 @@ from torch.autograd import Variable
 
 
 class FHDR(nn.Module):
-    """
-    Class for a Fast High Dynamic Range (FHDR) model.
-    """
     def __init__(self, iteration_count, device):
         """
-        Initializes the FHDR model.
+        Builds the instance of the model by only specifying the number of iterations of the model.
+        Builds the different layers and feedback loops. 
         """
-        # gives access to methods in a superclass from the subclass that inherits from it
+        # gives you access to methods in a superclass from the subclass that inherits from it
         super(FHDR, self).__init__() 
         print("FHDR model initialised")
 
-        self.device = device
-
         self.iteration_count = iteration_count
 
-        # layers for initial feature extraction
         self.reflect_pad = nn.ReflectionPad2d(1)
         self.feb1 = nn.Conv2d(3, 64, kernel_size=3, padding=0)
         self.feb2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
 
-        # feedback block for iterative processing
-        self.feedback_block = FeedbackBlock(device=self.device)
+        self.feedback_block = FeedbackBlock(device=device)
 
-        # layers for high-resolution reconstruction
         self.hrb1 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
         self.hrb2 = nn.Conv2d(64, 3, kernel_size=3, padding=0)
 
@@ -37,7 +32,7 @@ class FHDR(nn.Module):
 
     def forward(self, input):
         """
-        Defines the forward pass of the model. 
+        Defines the forward pass of the model to predict all the values at the different layers. 
         """
         outs = []
 
@@ -67,7 +62,6 @@ class FeedbackBlock(nn.Module):
         Initializes the feedback block that retains state across iterations.
         """
         super(FeedbackBlock, self).__init__()
-
         self.device = device
 
         self.compress_in = nn.Conv2d(128, 64, kernel_size=1, padding=0)
@@ -112,10 +106,11 @@ class DilatedResidualDenseBlock(nn.Module):
         Initializes the dilated residual dense block.
         """
         super(DilatedResidualDenseBlock, self).__init__()
-        self.device = device
 
         nChannels_ = 64
         modules = []
+
+        self.device = device
 
         # creating multiple dense layers in the block
         for i in range(nDenselayer):

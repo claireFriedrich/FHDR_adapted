@@ -206,7 +206,7 @@ python3 train.py --help
 - **`--iter`** param is used to specify the number of feedback iterations for global and local feedback mechanisms (refer to paper/architecture diagram)
 - Checkpoints of the model are saved in the **`checkpoints`** directory. (Saved after every 2 epochs by default)
 - GPU is used for training. Specify GPU IDs using **`--gpu_ids`** param.
-- The model takes around 5 hours to train on a dataset of 1700 images on a Tesla V100-PCIE-32GB GPU.
+- The model takes around 80s per epoch so 5 hours to train on a dataset of 1700 images on a Tesla V100-PCIE-32GB GPU.
 
 ## Pretrained models
 
@@ -222,8 +222,8 @@ These models have been trained with the default options, on 256x256 size images 
 
 
 ### Our testing results 
-The generated HDR images for each of the above models can be found at the links below: 
-- Results of 2-Iterations model from paper [UPCOMING]
+The 34 generated test HDR images for each of the above models can be found at the links below: 
+- [Results of 2-Iterations model from paper](https://drive.google.com/drive/folders/1qmffl_CTiMT6DsWB6FUP7blZrgOJ1EJf?usp=sharing)
 - [Results of FHDR model trained on 1700 256x256 images with 200 epochs, only VGG loss](https://drive.google.com/drive/folders/1TD6_lcl6PIMF_oM5_q7oQBqK91w_dvW_?usp=sharing)
 - Results of FHDR model trained on 1700 256x256 images with 200 epochs, VGG + L1 loss [UPCOMING]
 - [Results of FHDR model trained on 500 256x256 clear-sky images with 200 epoch](https://drive.google.com/drive/folders/1BxrDXyPI6w4A1OhEBBPtvc8oRD7xj8xj?usp=sharing)
@@ -239,11 +239,6 @@ python3 test.py --ckpt_path /path/to/checkpoint
 - Test results (LDR input, HDR prediction and HDR ground truth) are stored in the **`test_results`** directory.
 - HDR images can be viewed using [OpenHDRViewer](https://viewer.openhdr.org). Or by installing [HDR + WCG Image Viewer](https://apps.microsoft.com/detail/9PGN3NWPBWL9?rtc=1&hl=fr-ch&gl=CH) on windows
 - If checkpoint path is not specified, it defaults to `checkpoints/latest.ckpt` for evaluating the model.
-- PSNR and SSIM scores can be logged for quantitative evaluation by:
-
-```sh
-python3 test.py --log_scores
-```
 
 **Note:** Inference can be done on CPU (45 min)
 

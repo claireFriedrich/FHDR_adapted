@@ -1,7 +1,11 @@
+"""Some utility functions"""
+
 import os
+
 import cv2
 import numpy as np
 import torch
+
 import matplotlib.pyplot as plt
 
 
@@ -35,7 +39,7 @@ def make_required_directories(mode):
             print("Making test_results directory")
             os.makedirs("./test_results")
 
-
+# computes the tone mapping images of the GT HDR image.
 def mu_tonemap(img):
     """
     Tonemap HDR images using μ-law before computing loss.
@@ -50,12 +54,16 @@ def write_hdr(hdr_image, path):
     Write the HDR image in radiance format (.hdr) to the specified path.
     """
     norm_image = cv2.cvtColor(hdr_image, cv2.COLOR_BGR2RGB)
+    print(f"norme :{norm_image.max() - norm_image.min()}")
     with open(path, "wb") as f:
-        # normalisation function
-        norm_image = (norm_image - norm_image.min()) / (norm_image.max() - norm_image.min())  
+        norm_image = (norm_image - norm_image.min()) / (
+            norm_image.max() - norm_image.min()
+        )  # normalisation function
         f.write(b"#?RADIANCE\n# Made with Python & Numpy\nFORMAT=32-bit_rle_rgbe\n\n")
         f.write(b"-Y %d +X %d\n" % (norm_image.shape[0], norm_image.shape[1]))
-        brightest = np.maximum(np.maximum(norm_image[..., 0], norm_image[..., 1]), norm_image[..., 2])
+        brightest = np.maximum(
+            np.maximum(norm_image[..., 0], norm_image[..., 1]), norm_image[..., 2]
+        )
         mantissa = np.zeros_like(brightest)
         exponent = np.zeros_like(brightest)
         np.frexp(brightest, mantissa, exponent)
@@ -105,7 +113,9 @@ def update_lr(optimizer, epoch, opt):
     """
     Adjust the learning rate of the optimizer after a certain number of epochs.
     """
-    new_lr = opt.lr - opt.lr * (epoch - opt.lr_decay_after) / (opt.epochs - opt.lr_decay_after)
+    new_lr = opt.lr - opt.lr * (epoch - opt.lr_decay_after) / (
+        opt.epochs - opt.lr_decay_after
+    )
 
     for param_group in optimizer.param_groups:
         param_group["lr"] = new_lr
@@ -122,19 +132,6 @@ def plot_losses(training_losses, validation_losses, num_epochs, path):
     plt.plot(np.linspace(1, num_epochs, num=num_epochs), validation_losses, label="validation")
     plt.xlabel("epochs")
     plt.ylabel("loss")
-    plt.title(os.path.basename(os.path.normpath(path)))
-    plt.legend()
-    plt.savefig(path)
-
-
-def plot_psnr(psnr, num_epochs, path):
-    """
-    Plot the validation PSNR scores function of the number of epochs.
-    """
-    plt.figure()
-    plt.plot(np.linspace(1, num_epochs, num=num_epochs), psnr, label="training")
-    plt.xlabel("epochs")
-    plt.ylabel("PSNR [dB]")
     plt.title(os.path.basename(os.path.normpath(path)))
     plt.legend()
     plt.savefig(path)

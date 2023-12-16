@@ -4,38 +4,54 @@ Script for training the FHDR model.
 
 import os
 import time
+
 import torch
-import torch.nn as nn
 from torch.utils.data import DataLoader
+
 from data_loader import HDRDataset
 from model import FHDR
 from options import Options
-from util import *
 # VGGNet with 19 convolutional layers
+from util import (
+    load_checkpoint,
+    make_required_directories,
+    mu_tonemap,
+    save_checkpoint,
+    save_hdr_image,
+    save_ldr_image,
+    update_lr,
+    plot_losses
+)
+# where they define the model 
+# VGG = classical/standard convolutional neural network architecture. 3x3 filters. SImple model. Just pooling, convolutional layers and 1 fully connected layer.
+# Visual Geometry Group = university of oxford, the company that created the VGGNet, for image classification. 
+# here they use VGG19 --> 19 convolutional layers
 from vgg import VGGLoss
+
 from sklearn.model_selection import train_test_split
 
-# create a directory if it does not exist for the plot results
+
 if not os.path.exists(f"./plots"):
         print(f"Making plot directory")
         os.makedirs(f"./plots")
 
 def weights_init(m):
     """
-    Initialize the weights of the network.
+    Initializing the weights of the network as a first step.
     """
     classname = m.__class__.__name__
     if classname.find("Conv") != -1:
         # std 0.0 -> runtime error so changed to 0.01
         m.weight.data.normal_(0.0, 0.01)
 
-# initialize the training options
+
+# initialise training options
 opt = Options().parse()
-opt.save_results_after = 50
+opt.save_results_after = 400
 opt.log_after = 1
 
 # ======================================
-# Load the data
+# loading data
 # ======================================
 
 dataset = HDRDataset(mode="train", opt=opt)
@@ -47,12 +63,12 @@ train_dataset, val_dataset = train_test_split(dataset, test_size=0.2, random_sta
 train_data_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=True)
 val_data_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False)
 
-# print the number of training and validation samples
-print("Training samples: ", len(train_data_loader))
-print("Validation samples: ", len(val_data_loader))
+print("Training samples in one batch: ", len(train_data_loader) * opt.batch_size)
+print("Validation samples in one batch: ", len(val_data_loader) * opt.batch_size)
+
 
 # ========================================
-# GPU configuration
+# gpu configuration
 # ========================================
 
 str_ids = opt.gpu_ids.split(",")
@@ -63,7 +79,6 @@ for str_id in str_ids:
         opt.gpu_ids.append(id)
 
 # set GPU device
-    
 if torch.cuda.is_available():
     print(f"#GPUs = {torch.cuda.device_count()}")
     for i in range(torch.cuda.device_count()):
@@ -75,15 +90,14 @@ else:
     print(f"CPU: {device}")
 
 # ========================================
-# Model initialization
+# model init
 # ========================================
 
 model = FHDR(iteration_count=opt.iter, device=device)
-
 model.to(device)
 
 # ========================================
-# Initialization of losses and optimizer
+#  initialising losses and optimizer
 # ========================================
 
 l1 = torch.nn.L1Loss()
@@ -95,9 +109,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, betas=(0.9, 0.999))
 make_required_directories(mode="train")
 
 # ==================================================
-# Load the checkpoints if continuing training
+#  loading checkpoints if continuing training
 # ==================================================
-
 print(opt)
 
 if opt.continue_train:
@@ -110,7 +123,6 @@ if opt.continue_train:
         start_epoch = 1
         model.apply(weights_init)
 else:
-    print("Checkpoint not found! Training from scratch.")
     start_epoch = 1
     model.apply(weights_init)
 
@@ -118,9 +130,9 @@ if opt.print_model:
     print(model)
 
 # ========================================
-# Training
+#  training
 # ========================================
-
+    
 # define the number of epochs
 num_epochs = 200
 
@@ -129,37 +141,36 @@ print(f"# of epochs: {num_epochs}")
 losses_train = []
 losses_validation = []
 
-
-# epoch -> one complete pass of the training dataset through the algorithm
+# epoch = one complete pass of the training dataset through the algorithm
 for epoch in range(start_epoch, num_epochs + 1):
     print(f"-------------- Epoch # {epoch} --------------")
 
     epoch_start = time.time()
-    running_loss = 0
 
-    # check whether the learning rate needs to be updated
+    # check whether learning rate needs to be updated
     if epoch > opt.lr_decay_after:
         update_lr(optimizer, epoch, opt)
 
     losses_epoch = []
+    vgg_losses_epoch = []
 
-    # training loop
+    # training loop 
     # stochstic gradient descent with batch size = 2
     for batch, data in enumerate(train_data_loader):
         optimizer.zero_grad()
 
         # get the LDR images
-        input_data = data["ldr_image"].data.to(device)
+        input = data["ldr_image"].data.to(device)
         # get the HDR images
         ground_truth = data["hdr_image"].data.to(device)
 
-        # forward pass through the model
-        output = model(input_data)
+        # forward pass 
+        output = model(input)
 
         l1_loss = 0
         vgg_loss = 0
 
-        # tonemap the ground truth image
+        # tonemapping ground truth
         mu_tonemap_gt = mu_tonemap(ground_truth)
 
         # computing loss for n generated outputs (from n-iterations)
@@ -175,52 +186,54 @@ for epoch in range(start_epoch, num_epochs + 1):
         l1_loss = torch.mean(l1_loss)
         vgg_loss = torch.mean(vgg_loss)
 
+
         # FHDR loss function
         loss = l1_loss + (vgg_loss * 10)
         losses_epoch.append(loss.item())
         
-        # output is the final reconstructed image so last in the array of outputs of n iterations
+
+        # output is the final reconstructed image i.e. last in the array of outputs of n iterations
         output = output[-1]
 
-        # backpropagate and optimization step
+        # backpropagate and step
         loss.backward()
         optimizer.step()
 
-        running_loss += loss.item()
 
-        # save the results
-        if (batch + 1) % opt.save_results_after == 0: 
+        # save image results
+        if (batch + 1) % opt.save_results_after == 0:
             print(f"Batch = {batch}")
             print(data["path"])
             print("training_results/generated_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1))
+
             save_ldr_image(
-                img_tensor=input_data, 
-                batch=0, 
+                img_tensor=input,
+                batch=0,
                 path="./training_results/ldr_e_{}_b_{}.jpg".format(epoch, batch + 1),
             )
-            
             save_hdr_image(
-                img_tensor=output, 
-                batch=0, 
-                path="./training_results/generated_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
-            
+                img_tensor=output,
+                batch=0,
+                path="./training_results/generated_hdr_e_{}_b_{}.hdr".format(
+                    epoch, batch + 1
+                ),
+            )
             save_hdr_image(
-                img_tensor=ground_truth, 
-                batch=0, 
-                path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
-    
+                img_tensor=ground_truth,
+                batch=0,
+                path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),
+            )
+
     print(f"Training loss: {losses_epoch[-1]}")
     losses_train.append(losses_epoch[-1])
-
 
 # ========================================
 # Validation
 # ========================================
-
-    # validation loop -> set the model mode to evaluation
+    
+    # set model to evaluation mode
     model.eval()  
     val_losses = []
-
     with torch.no_grad():
         for val_batch, val_data in enumerate(val_data_loader):
             input_val = val_data["ldr_image"].data.to(device)
@@ -228,16 +241,14 @@ for epoch in range(start_epoch, num_epochs + 1):
 
             output_val = model(input_val)
 
-            # calculate the validation loss 
+            # calculate validation loss 
             l1_loss_val = 0
             vgg_loss_val = 0
-
             mu_tonemap_gt_val = mu_tonemap(ground_truth_val)
 
             for image_val in output_val:
                 l1_loss_val += l1(mu_tonemap(image_val), mu_tonemap_gt_val)
                 vgg_loss_val += perceptual_loss(mu_tonemap(image_val), mu_tonemap_gt_val)
-
 
             l1_loss_val /= len(output_val)
             vgg_loss_val /= len(output_val)
@@ -248,15 +259,14 @@ for epoch in range(start_epoch, num_epochs + 1):
             val_loss = l1_loss_val + (vgg_loss_val * 10)
             val_losses.append(val_loss.item())
 
-
-    # calculate average validation loss for the entire validation dataset
+    # Calculate average validation loss for the entire validation dataset
     average_val_loss = sum(val_losses) / len(val_losses)
     print(f"Average validation Loss: {average_val_loss}")
     losses_validation.append(average_val_loss)
 
-
     # set model back to training mode
     model.train()  
+
 
     epoch_finish = time.time()
     time_taken = (epoch_finish - epoch_start)
@@ -266,13 +276,9 @@ for epoch in range(start_epoch, num_epochs + 1):
     if epoch % opt.save_ckpt_after == 0:
         save_checkpoint(epoch, model)
 
-# ========================================
-# Print the results
-# ========================================
-
 print("Training complete!")
 
 print(f"Training losses: {losses_train}")
 print(f"Validation losses: {losses_validation}")
 
-plot_losses(losses_train, losses_validation, num_epochs, f"plots/_loss_{num_epochs}_epochs")
+plot_losses(losses_train, losses_validation, num_epochs, f"plots/_loss_vgg_{num_epochs}_epochs")
