@@ -65,7 +65,7 @@ The whole implementation of the project has been done in Python.
 
 The file `split_data.py` creates a dataset in the structure needed for the training and testing of the model. More information can be found in the part about the [dataset](#dataset).
 
-The file `get_clear_sky.py` creates a dataset only based on the clear sky images. More information can be found in the part about the [pretrained models](#pretrained_models).
+The file `get_clear_sky.py` creates a dataset only based on the clear sky images. More information can be found in the part about the [pretrained models](#training).
 
 The file `dataloader.py` defines a custom HDR class that loads LDR and HDR images. It provides methods to transform the images into tensors and organize the into a dictionary.
 
