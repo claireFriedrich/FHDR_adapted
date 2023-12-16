@@ -170,8 +170,7 @@ python3 train.py --help
 - GPU is used for training. Specify GPU IDs using **`--gpu_ids`** param.
 - The model takes around 5 hours to train on a dataset of 1700 images on a Tesla V100-PCIE-32GB GPU.
 
-Pretrained models
----------------------------
+### Pretrained models
 
 Three pre-trained models can be downloaded from the below-mentioned links. 
 
@@ -183,8 +182,7 @@ These models have been trained with the default options, on 256x256 size images 
 
 
 
-Evaluation of the model
-----------
+### Evaluation of the model
 
 The performance of the network can be evaluated using: 
 
@@ -202,8 +200,7 @@ python3 test.py --log_scores
 ```
 
 
-Acknowledgement
-------
+### Acknowledgement
 
 This project on HDR reconstruction was provided by the [Laboratory of Integrated Performance in Design (LIPID)](https://www.epfl.ch/labs/lipid/) at EPFL and supervised by Stephen Wasilewski and Cho Yunjoung.
 
