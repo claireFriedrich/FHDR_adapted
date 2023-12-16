@@ -16,6 +16,7 @@ The repository was created within the scope of a Machine Learning project during
 
 - [Abstract](#abstract)
 - [Setup](#setup)
+- [Files](#files)
 - [Dataset](#dataset)
 - [Training](#training)
 - [Pretrained models](#pretrained-models)
@@ -46,6 +47,41 @@ To better utilize the power of CNNs, the authors exploit the idea of feedback, w
 pip install -r requirements.txt
 ```
 
+## Files
+
+- `split_data.py`
+- `get_clear_sky.py`
+- `dataloader.py`
+- `model.py`
+- `train.py`
+- `test.py`
+- `options.py`
+- `vgg.py`
+- `util.py`
+
+### Description
+
+The whole implementation of the project has been done in Python.
+
+The file `split_data.py` creates a dataset in the structure needed for the training and testing of the model. More information can be found in the part about the [dataset](#dataset).
+
+The file `get_clear_sky.py` creates a dataset only based on the clear sky images. More information can be found in the part about the [pretrained models](#pretrained models).
+
+The file `dataloader.py` defines a custom HDR class that loads LDR and HDR images. It provides methods to transform the images into tensors and organize the into a dictionary.
+
+The file `model.py` defines an Fast High Dynamic Range (FHDR) model consisting of initial feature extraction layers, a feedback block for iterative processing, layers for high-resolution reconstruction, and a final output transformation. The feedback block maintains the state across iterations using dilated residual dense blocks that preserve and update hidden states during each pass.
+
+The file `train.py` is designed to train a model for HDR image reconstruction. It initializes the model, optimizes it using defined loss functions, does training and validation loops, saves intermediate results, and ultimately saves the trained model. Additionally, it plots the losses throughout the process.
+
+The file `test.py`evaluates the trained HDR image model. It loads test data, applies the model to generate HDR images, saves the results, and computes evaluation metrics like PSNR and SSIM for the generated images compared to ground truth. The final results are printed.
+
+The file `options.py` contains a class Options that defines and handles various settings and configurations used for training, debugging, and evaluation of the FHDR model. It uses the argparse module to define command-line arguments for different options like batch size, learning rate, number of epochs, GPU IDs, debugging flags, and testing options such as checkpoint paths and logging scores during evaluation. The parse() method parses these options and returns the parsed arguments.
+
+The file `vgg.py` implements a VGG19 network for perceptual loss computation during training of HDR image generation models, using pre-trained layers to extract features and compute the loss.
+
+The file `util.py` contains several utility functions including methods for checkpoint loading and saving, HDR image tonemapping, saving HDR and LDR images, updating learning rates and plotting losses. 
+
+
 ## Dataset
 
 The dataset is expected to contain LDR (input) and HDR (ground truth) image pairs. The network is trained to learn the mapping from LDR images to their corresponding HDR ground truth counterparts.
@@ -54,31 +90,25 @@ The dataset should have the following folder structure -
 
 ```
 > dataset
-
     > train
         > HDR
-
-                > hdr_image_1.hdr/exr
-                > hdr_image_2.hdr/exr
-                .
-                .
-
+            > hdr_image_1.hdr/exr
+            > hdr_image_2.hdr/exr
+            .
+            .
         > LDR
 
             > ldr_image_1.jpg/png
             > ldr_image_2.jpg/png
             .
             .
-
-
     > test
         > HDR
 
-                > hdr_image_1.hdr/exr
-                > hdr_image_2.hdr/exr
-                .
-                .
-
+            > hdr_image_1.hdr/exr
+            > hdr_image_2.hdr/exr
+            .
+            .
         > LDR
 
             > ldr_image_1.jpg/png
