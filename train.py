@@ -14,9 +14,6 @@ from util import *
 # VGGNet with 19 convolutional layers
 from vgg import VGGLoss
 from sklearn.model_selection import train_test_split
-from skimage.measure import compare_ssim
-
-import numpy as np
 
 # create a directory if it does not exist for the plot results
 if not os.path.exists(f"./plots"):
@@ -34,7 +31,7 @@ def weights_init(m):
 
 # initialize the training options
 opt = Options().parse()
-opt.save_results_after = 1
+opt.save_results_after = 50
 opt.log_after = 1
 
 # ======================================
@@ -55,12 +52,6 @@ print("Training samples: ", len(train_data_loader))
 print("Validation samples: ", len(val_data_loader))
 
 # ========================================
-# Model initialization
-# ========================================
-
-model = FHDR(iteration_count=opt.iter)
-
-# ========================================
 # GPU configuration
 # ========================================
 
@@ -72,18 +63,6 @@ for str_id in str_ids:
         opt.gpu_ids.append(id)
 
 # set GPU device
-"""
-if len(opt.gpu_ids) > 0:
-    assert torch.cuda.is_available()
-    assert torch.cuda.device_count() >= len(opt.gpu_ids)
-
-    torch.cuda.set_device(opt.gpu_ids[0])
-
-    if len(opt.gpu_ids) > 1:
-        model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
-
-    model.cuda()
-"""
     
 if torch.cuda.is_available():
     print(f"#GPUs = {torch.cuda.device_count()}")
@@ -92,8 +71,14 @@ if torch.cuda.is_available():
         print(f"GPU {i} Name:", torch.cuda.get_device_name(device))
 else:
     print("No GPU available.")
+    device = torch.device("cpu")
+    print(f"CPU: {device}")
 
-print(f"Using GPU: {torch.cuda.get_device_name(device)}")
+# ========================================
+# Model initialization
+# ========================================
+
+model = FHDR(iteration_count=opt.iter, device=device)
 
 model.to(device)
 
@@ -103,7 +88,7 @@ model.to(device)
 
 l1 = torch.nn.L1Loss()
 # VGGloss of the VGGNet
-perceptual_loss = VGGLoss()
+perceptual_loss = VGGLoss(device=device)
 optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, betas=(0.9, 0.999))
 
 # create directories to save the training results
@@ -144,8 +129,6 @@ print(f"# of epochs: {num_epochs}")
 losses_train = []
 losses_validation = []
 
-# define the mean squared error loss
-mse_loss = nn.MSELoss()
 
 # epoch -> one complete pass of the training dataset through the algorithm
 for epoch in range(start_epoch, num_epochs + 1):
@@ -159,7 +142,6 @@ for epoch in range(start_epoch, num_epochs + 1):
         update_lr(optimizer, epoch, opt)
 
     losses_epoch = []
-    vgg_losses_epoch = []
 
     # training loop
     # stochstic gradient descent with batch size = 2
@@ -194,7 +176,7 @@ for epoch in range(start_epoch, num_epochs + 1):
         vgg_loss = torch.mean(vgg_loss)
 
         # FHDR loss function
-        loss = l1_loss + 10*vgg_loss
+        loss = l1_loss + (vgg_loss * 10)
         losses_epoch.append(loss.item())
         
         # output is the final reconstructed image so last in the array of outputs of n iterations
@@ -208,17 +190,24 @@ for epoch in range(start_epoch, num_epochs + 1):
 
         # save the results
         if (batch + 1) % opt.save_results_after == 0: 
-            save_ldr_image(img_tensor=input_data, 
-                           batch=0, 
-                           path="./training_results/ldr_e_{}_b_{}.jpg".format(epoch, batch + 1),)
+            print(f"Batch = {batch}")
+            print(data["path"])
+            print("training_results/generated_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1))
+            save_ldr_image(
+                img_tensor=input_data, 
+                batch=0, 
+                path="./training_results/ldr_e_{}_b_{}.jpg".format(epoch, batch + 1),
+            )
             
-            save_hdr_image(img_tensor=output, 
-                           batch=0, 
-                           path="./training_results/generated_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
+            save_hdr_image(
+                img_tensor=output, 
+                batch=0, 
+                path="./training_results/generated_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
             
-            save_hdr_image(img_tensor=ground_truth, 
-                           batch=0, 
-                           path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
+            save_hdr_image(
+                img_tensor=ground_truth, 
+                batch=0, 
+                path="./training_results/gt_hdr_e_{}_b_{}.hdr".format(epoch, batch + 1),)
     
     print(f"Training loss: {losses_epoch[-1]}")
     losses_train.append(losses_epoch[-1])
@@ -250,14 +239,13 @@ for epoch in range(start_epoch, num_epochs + 1):
                 vgg_loss_val += perceptual_loss(mu_tonemap(image_val), mu_tonemap_gt_val)
 
 
-
             l1_loss_val /= len(output_val)
             vgg_loss_val /= len(output_val)
 
             l1_loss_val = torch.mean(l1_loss_val)
             vgg_loss_val = torch.mean(vgg_loss_val)
 
-            val_loss = l1_loss_val + 10*vgg_loss_val
+            val_loss = l1_loss_val + (vgg_loss_val * 10)
             val_losses.append(val_loss.item())
 
 

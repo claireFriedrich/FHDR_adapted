@@ -31,9 +31,6 @@ print("Testing samples: ", len(dataset))
 # loading & GPU configuration
 # ========================================
 
-# initialize FHDR model with specified iterations
-model = FHDR(iteration_count=opt.iter)
-
 # get GPU IDs from optiont
 str_ids = opt.gpu_ids.split(",")
 opt.gpu_ids = []
@@ -43,22 +40,26 @@ for str_id in str_ids:
         opt.gpu_ids.append(id)
 
 # set GPU device
-if len(opt.gpu_ids) > 0:
-    assert torch.cuda.is_available()
-    assert torch.cuda.device_count() >= len(opt.gpu_ids)
+if torch.cuda.is_available():
+    print(f"#GPUs = {torch.cuda.device_count()}")
+    for i in range(torch.cuda.device_count()):
+        device = torch.device(f"cuda:{i}")
+        print(f"GPU {i} Name:", torch.cuda.get_device_name(device))
+else:
+    print("No GPU available.")
+    device = torch.device("cpu")
+    print(f"CPU: {device}")
 
-    torch.cuda.set_device(opt.gpu_ids[0])
 
-    if len(opt.gpu_ids) > 1:
-        model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
-
-    model.cuda()
+# initialize FHDR model with specified iterations
+model = FHDR(iteration_count=opt.iter, device=device)
+model.to(device)
 
 # define the mean squared error loss
 mse_loss = nn.MSELoss()
 
 # load the checkpoint for the evaluation
-model.load_state_dict(torch.load(opt.ckpt_path))
+model.load_state_dict(torch.load(opt.ckpt_path, map_location=device))
 
 # make the necessary directories for saving the test results
 make_required_directories(mode="test")
@@ -80,9 +81,9 @@ with torch.no_grad():
     for batch, data in enumerate(tqdm(data_loader, desc="Testing %")):
 
         # get the LDR images
-        input = data["ldr_image"].data.cuda()
+        input = data["ldr_image"].data.to(device)
         # get the HDR images
-        ground_truth = data["hdr_image"].data.cuda()
+        ground_truth = data["hdr_image"].data.to(device)
 
         # generate the output from the model
         output = model(input)

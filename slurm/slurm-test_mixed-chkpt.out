@@ -1,0 +1,45 @@
+STARTING AT Sat Dec 16 14:41:14 CET 2023
+SUCCESSFULLY CHANGED LOCATION
+Namespace(batch_size=2, ckpt_path='/home/cfriedri/FHDR_adapted/FHDR_200epochs_mixed.ckpt', continue_train=False, epochs=200, gpu_ids='0', iter=1, log_after=500, log_scores=True, lr=0.0002, lr_decay_after=100, print_model=False, save_ckpt_after=2, save_results_after=1000)
+#LDR images = 34
+#HDR images = 34
+batch_size = 2
+batch_size = 2
+batch_size = 2
+Testing samples:  34
+No GPU available.
+CPU: cpu
+FHDR model initialised
+Mode = test
+Making test_results directory
+Starting evaluation. Results will be saved in '/test_results' directory
+batch_size = 2
+
+Testing %:   0%|          | 0/17 [00:00<?, ?it/s]batch_size = 2
+
+Testing %:   6%|▌         | 1/17 [02:28<39:40, 148.77s/it]
+Testing %:  12%|█▏        | 2/17 [04:57<37:09, 148.63s/it]
+Testing %:  18%|█▊        | 3/17 [07:25<34:40, 148.59s/it]
+Testing %:  24%|██▎       | 4/17 [09:55<32:16, 148.97s/it]
+Testing %:  29%|██▉       | 5/17 [12:23<29:46, 148.83s/it]
+Testing %:  35%|███▌      | 6/17 [14:52<27:15, 148.72s/it]
+Testing %:  41%|████      | 7/17 [17:20<24:45, 148.58s/it]
+Testing %:  47%|████▋     | 8/17 [19:49<22:17, 148.64s/it]
+Testing %:  53%|█████▎    | 9/17 [22:18<19:50, 148.83s/it]
+Testing %:  59%|█████▉    | 10/17 [24:52<17:32, 150.38s/it]
+Testing %:  65%|██████▍   | 11/17 [27:23<15:02, 150.48s/it]
+Testing %:  71%|███████   | 12/17 [29:52<12:30, 150.19s/it]
+Testing %:  76%|███████▋  | 13/17 [32:23<10:00, 150.16s/it]
+Testing %:  82%|████████▏ | 14/17 [34:53<07:30, 150.33s/it]
+Testing %:  88%|████████▊ | 15/17 [37:25<05:01, 150.78s/it]
+Testing %:  94%|█████████▍| 16/17 [39:57<02:31, 151.19s/it]
+Testing %: 100%|██████████| 17/17 [42:26<00:00, 150.57s/it]
+Testing %: 100%|██████████| 17/17 [42:26<00:00, 149.82s/it]
+batch_size = 2
+===> Avg PSNR: 10.4334 dB
+batch_size = 2
+Avg SSIM -> 0.12325189938863072
+batch_size = 2
+Avg MSE -> 0.1026974088676712
+Evaluation completed.
+FINISHED at Sat Dec 16 15:23:51 CET 2023

@@ -8,13 +8,15 @@ class FHDR(nn.Module):
     """
     Class for a Fast High Dynamic Range (FHDR) model.
     """
-    def __init__(self, iteration_count):
+    def __init__(self, iteration_count, device):
         """
         Initializes the FHDR model.
         """
         # gives access to methods in a superclass from the subclass that inherits from it
         super(FHDR, self).__init__() 
         print("FHDR model initialised")
+
+        self.device = device
 
         self.iteration_count = iteration_count
 
@@ -24,7 +26,7 @@ class FHDR(nn.Module):
         self.feb2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
 
         # feedback block for iterative processing
-        self.feedback_block = FeedbackBlock()
+        self.feedback_block = FeedbackBlock(device=self.device)
 
         # layers for high-resolution reconstruction
         self.hrb1 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
@@ -60,16 +62,18 @@ class FeedbackBlock(nn.Module):
     """
     Class for a feedback block that maintains the state across iterations.
     """
-    def __init__(self):
+    def __init__(self, device):
         """
         Initializes the feedback block that retains state across iterations.
         """
         super(FeedbackBlock, self).__init__()
 
+        self.device = device
+
         self.compress_in = nn.Conv2d(128, 64, kernel_size=1, padding=0)
-        self.DRDB1 = DilatedResidualDenseBlock()
-        self.DRDB2 = DilatedResidualDenseBlock()
-        self.DRDB3 = DilatedResidualDenseBlock()
+        self.DRDB1 = DilatedResidualDenseBlock(device=device)
+        self.DRDB2 = DilatedResidualDenseBlock(device=device)
+        self.DRDB3 = DilatedResidualDenseBlock(device=device)
         self.last_hidden = None
 
         self.GFF_3x3 = nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=True)
@@ -81,7 +85,7 @@ class FeedbackBlock(nn.Module):
         """
         if self.should_reset:
             # initialize the hidden state for the feedback
-            self.last_hidden = torch.zeros(x.size()).cuda()
+            self.last_hidden = torch.zeros(x.size()).to(self.device)
             self.last_hidden.copy_(x)
             self.should_reset = False
 
@@ -103,11 +107,12 @@ class DilatedResidualDenseBlock(nn.Module):
     """
     Class for a dilated residual dense block.
     """
-    def __init__(self, nDenselayer=4, growthRate=32):
+    def __init__(self, device, nDenselayer=4, growthRate=32):
         """
         Initializes the dilated residual dense block.
         """
         super(DilatedResidualDenseBlock, self).__init__()
+        self.device = device
 
         nChannels_ = 64
         modules = []
@@ -128,7 +133,7 @@ class DilatedResidualDenseBlock(nn.Module):
         """
         if self.should_reset:
             # initialize the hidden state for the block
-            self.last_hidden = torch.zeros(x.size()).cuda()
+            self.last_hidden = torch.zeros(x.size()).to(self.device)
             self.last_hidden.copy_(x)
             self.should_reset = False
 
