@@ -1,15 +1,16 @@
-# A Feedback Network to resonstruct HDR images from LDR inputs
+# A Feedback Network to reconstruct HDR images from LDR inputs
 
 
-This repository is adapted from [the code](https://github.com/mukulkhanna/fhdr) linked to the [FHDR: HDR Image Reconstruction from a Single LDR Image using Feedback Network](https://arxiv.org/abs/1912.11463v1) authored by  Z. Khan, M. Khanna and S. Raman.
+This repository is adapted from [the code](https://github.com/mukulkhanna/fhdr) linked to the [FHDR: HDR Image Reconstruction from a Single LDR Image using Feedback Network](https://arxiv.org/abs/1912.11463v1) authored by  Z. Khan, M. Khanna and S. Raman. <br>
 
 The authors of the current repository are:
+
 - Claire Alexandra Friedrich
 - Céline Kalbermatten
 - Adam Zinebi
 
-The repository was created within the scope of a Machine Learning project during the course CSS-433 Machine Learning at EPFL.
 
+The repository was created within the scope of a Machine Learning project during the course [CSS-433 Machine Learning](https://www.epfl.ch/labs/mlo/machine-learning-cs-433/) at [EPFL](https://www.epfl.ch/en/).
 
     
 ## Table of contents:
@@ -41,7 +42,7 @@ To better utilize the power of CNNs, the authors exploit the idea of feedback, w
 - [scikit-image](https://scikit-image.org/)
 - [tqdm](https://pypi.org/project/tqdm/)
 
-**`requirements.txt`** has is provided to install the necessary Python dependencies
+**`requirements.txt`** is provided to install the necessary Python dependencies
 
 ```sh
 pip install -r requirements.txt
@@ -83,6 +84,41 @@ The file `vgg.py` implements a VGG19 network for perceptual loss computation dur
 
 The file `util.py` contains several utility functions including methods for checkpoint loading and saving, HDR image tonemapping, saving HDR and LDR images, updating learning rates and plotting losses. 
 
+## Files
+
+- `split_data.py`
+- `get_clear_sky.py`
+- `dataloader.py`
+- `model.py`
+- `train.py`
+- `test.py`
+- `options.py`
+- `vgg.py`
+- `util.py`
+
+### Description
+
+The whole implementation of the project has been done in Python.
+
+The file `split_data.py` creates a dataset in the structure needed for the training and testing of the model. More information can be found in the part about the [dataset](#dataset).
+
+The file `get_clear_sky.py` creates a dataset only based on the clear sky images. More information can be found in the part about the [pretrained models](#training).
+
+The file `dataloader.py` defines a custom HDR class that loads LDR and HDR images. It provides methods to transform the images into tensors and organize the into a dictionary.
+
+The file `model.py` defines an Fast High Dynamic Range (FHDR) model consisting of initial feature extraction layers, a feedback block for iterative processing, layers for high-resolution reconstruction, and a final output transformation. The feedback block maintains the state across iterations using dilated residual dense blocks that preserve and update hidden states during each pass.
+
+The file `train.py` is designed to train a model for HDR image reconstruction. It initializes the model, optimizes it using defined loss functions, does training and validation loops, saves intermediate results, and ultimately saves the trained model. Additionally, it plots the losses throughout the process.
+
+The file `test.py`evaluates the trained HDR image model. It loads test data, applies the model to generate HDR images, saves the results, and computes evaluation metrics like PSNR and SSIM for the generated images compared to ground truth. The final results are printed.
+
+The file `options.py` contains a class Options that defines and handles various settings and configurations used for training, debugging, and evaluation of the FHDR model. It uses the argparse module to define command-line arguments for different options like batch size, learning rate, number of epochs, GPU IDs, debugging flags, and testing options such as checkpoint paths and logging scores during evaluation. The parse() method parses these options and returns the parsed arguments.
+
+The file `vgg.py` implements a VGG19 network for perceptual loss computation during training of HDR image generation models, using pre-trained layers to extract features and compute the loss.
+
+The file `util.py` contains several utility functions including methods for checkpoint loading and saving, HDR image tonemapping, saving HDR and LDR images, updating learning rates and plotting losses. 
+
+
 ## Dataset
 
 The dataset is expected to contain LDR (input) and HDR (ground truth) image pairs. The network is trained to learn the mapping from LDR images to their corresponding HDR ground truth counterparts.
@@ -91,31 +127,25 @@ The dataset should have the following folder structure -
 
 ```
 > dataset
-
     > train
         > HDR
-
-                > hdr_image_1.hdr/exr
-                > hdr_image_2.hdr/exr
-                .
-                .
-
+            > hdr_image_1.hdr/exr
+            > hdr_image_2.hdr/exr
+            .
+            .
         > LDR
 
             > ldr_image_1.jpg/png
             > ldr_image_2.jpg/png
             .
             .
-
-
     > test
         > HDR
 
-                > hdr_image_1.hdr/exr
-                > hdr_image_2.hdr/exr
-                .
-                .
-
+            > hdr_image_1.hdr/exr
+            > hdr_image_2.hdr/exr
+            .
+            .
         > LDR
 
             > ldr_image_1.jpg/png
@@ -180,6 +210,7 @@ python3 train.py --help
 
 ## Pretrained models
 
+
 Three pre-trained models can be downloaded from the below-mentioned links. 
 
 These models have been trained with the default options, on 256x256 size images for 200 epochs.
@@ -197,8 +228,7 @@ The generated HDR images for each of the above models can be found at the links 
 - Results of FHDR model trained on 1700 256x256 images with 200 epochs, VGG + L1 loss [UPCOMING]
 - [Results of FHDR model trained on 500 256x256 clear-sky images with 200 epoch](https://drive.google.com/drive/folders/1BxrDXyPI6w4A1OhEBBPtvc8oRD7xj8xj?usp=sharing)
 
-Evaluation
-----------
+### Evaluation of the model
 
 The performance of the network can be evaluated using: 
 
@@ -217,10 +247,9 @@ python3 test.py --log_scores
 
 **Note:** Inference can be done on CPU (45 min)
 
-Acknowledgement
-------
+### Acknowledgement
 
-This project on HDR reconstruction was provided by the Laboratory of Integrated Performance in Design (LIPID), and supervised by Stephen Wasilewski and Cho Yunjoung. 
+This project on HDR reconstruction was provided by the [Laboratory of Integrated Performance in Design (LIPID)](https://www.epfl.ch/labs/lipid/) at EPFL and supervised by Stephen Wasilewski and Cho Yunjoung.
 
 The code was adapted from the previously cited [repository](https://github.com/mukulkhanna/fhdr).
 
