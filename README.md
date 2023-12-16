@@ -168,7 +168,7 @@ python3 test.py --log_scores
 Acknowledgement
 ------
 
-This project on HDR reconstruction was provided by the Laboratory of Integrated Performance in Design (LIPID), and supervised by Stephen Wasilewski and Cho Yunjoung. 
+This project on HDR reconstruction was provided by the [Laboratory of Integrated Performance in Design (LIPID)](https://www.epfl.ch/labs/lipid/) at EPFL and supervised by Stephen Wasilewski and Cho Yunjoung.
 
 The code was adapted from the previously cited [repository](https://github.com/mukulkhanna/fhdr).
 
