@@ -186,7 +186,7 @@ These models have been trained with the default options, on 256x256 size images 
 - [FHDR model trained on 1700 256x256 images with 200 epochs, L1 + VGG loss](https://drive.google.com/file/d/1A80kL5PoNk37o_oCuKzAxVr-xu6g5yJ-/view?usp=sharing)
 - [FHDR model trained on 500 clear sky 256x256 images with 200 epoch](https://drive.google.com/file/d/1E9aEWcUcdOWQuQqhrZ7dIzh0Xr-c01BT/view?usp=sharing)
 
-<img src="https://github.com/claireFriedrich/FHDR_adapted/blob/main/mixed_loss_500_epochs.png" width="380" height="280" />
+<img src="https://github.com/claireFriedrich/FHDR_adapted/blob/main/img/mixed_loss_500_epochs.png" width="380" height="280" />
 
 ### Our testing results 
 The 34 generated test HDR images for each of the above models can be found at the links below: 
