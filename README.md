@@ -217,7 +217,7 @@ These models have been trained with the default options, on 256x256 size images 
 
 - [2-Iterations model from paper](https://drive.google.com/open?id=13vTGH-GVIWVL79X8NJra0yiguoO1Ox4V)
 - [FHDR model trained on 1700 256x256 images with 200 epochs, only VGG loss](https://drive.google.com/file/d/1_Bp6kR56uttLXwW9IWdaiGZwmIoDIqlG/view?usp=drive_link)
-- FHDR model trained on 1700 256x256 images with 200 epochs, L1 + VGG loss [UPCOMING]
+- [FHDR model trained on 1700 256x256 images with 200 epochs, L1 + VGG loss](https://drive.google.com/file/d/1A80kL5PoNk37o_oCuKzAxVr-xu6g5yJ-/view?usp=sharing)
 - [FHDR model trained on 500 clear sky 256x256 images with 200 epoch](https://drive.google.com/file/d/1E9aEWcUcdOWQuQqhrZ7dIzh0Xr-c01BT/view?usp=sharing)
 
 
@@ -225,7 +225,7 @@ These models have been trained with the default options, on 256x256 size images 
 The 34 generated test HDR images for each of the above models can be found at the links below: 
 - [Results of 2-Iterations model from paper](https://drive.google.com/drive/folders/1qmffl_CTiMT6DsWB6FUP7blZrgOJ1EJf?usp=sharing)
 - [Results of FHDR model trained on 1700 256x256 images with 200 epochs, only VGG loss](https://drive.google.com/drive/folders/1TD6_lcl6PIMF_oM5_q7oQBqK91w_dvW_?usp=sharing)
-- Results of FHDR model trained on 1700 256x256 images with 200 epochs, VGG + L1 loss [UPCOMING]
+- [Results of FHDR model trained on 1700 256x256 images with 200 epochs, VGG + L1 loss](https://drive.google.com/drive/folders/1itfrmDBN_RgWfKRNqkECfvQIcMqO1FE9?usp=sharing)
 - [Results of FHDR model trained on 500 256x256 clear-sky images with 200 epoch](https://drive.google.com/drive/folders/1BxrDXyPI6w4A1OhEBBPtvc8oRD7xj8xj?usp=sharing)
 
 ### Evaluation of the model

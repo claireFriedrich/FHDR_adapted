@@ -6,4 +6,4 @@ checkpoints*/
 .vscode
 *.pyc
 *.sh
-*.code-workspace
+/FHDR_adapted.code-workspace
