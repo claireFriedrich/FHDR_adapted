@@ -214,7 +214,6 @@ The 34 generated test HDR images for each of the above models can be found at th
 
 This project on HDR reconstruction was provided by the [Laboratory of Integrated Performance in Design (LIPID)](https://www.epfl.ch/labs/lipid/) at EPFL and supervised by Stephen Wasilewski and Cho Yunjoung.
 
-We are grateful to Stephen Wasilewski, Cho Yunjoung and the entire team at LIPID for their support and guidance throughout this project. 
 
 The code was adapted from the previously cited [repository](https://github.com/mukulkhanna/fhdr).
 
