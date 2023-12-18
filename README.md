@@ -72,6 +72,8 @@ The file `get_clear_sky.py` creates a dataset only based on the clear sky images
 
 The file `dataloader.py` defines a custom HDR class that loads LDR and HDR images. It provides methods to transform the images into tensors and organize the into a dictionary.
 
+>**_Note:_** Change the data path to your specific data folder line 28 and line 30
+
 The file `model.py` defines an Fast High Dynamic Range (FHDR) model consisting of initial feature extraction layers, a feedback block for iterative processing, layers for high-resolution reconstruction, and a final output transformation. The feedback block maintains the state across iterations using dilated residual dense blocks that preserve and update hidden states during each pass.
 
 The file `train.py` is designed to train a model for HDR image reconstruction. It initializes the model, optimizes it using defined loss functions, does training and validation loops, saves intermediate results, and ultimately saves the trained model. Additionally, it plots the losses throughout the process.
