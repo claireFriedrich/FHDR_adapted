@@ -174,7 +174,7 @@ python3 train.py --help
 - GPU is used for training. Specify GPU IDs using **`--gpu_ids`** param.
 - The model takes around 80s per epoch so 5 hours to train on a dataset of 1700 images on a Tesla V100-PCIE-32GB GPU.
 
-## Pretrained models
+### Pretrained models
 
 
 Three pre-trained models can be downloaded from the below-mentioned links. 
@@ -188,7 +188,7 @@ These models have been trained with the default options, on 256x256 size images 
 
 <img src="https://github.com/claireFriedrich/FHDR_adapted/blob/main/img/mixed_loss_500_epochs.png" width="380" height="280" />
 
-### Evaluation of the model
+## Evaluation of the model
 
 The performance of the network can be evaluated using: 
 
