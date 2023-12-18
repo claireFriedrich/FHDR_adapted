@@ -188,13 +188,6 @@ These models have been trained with the default options, on 256x256 size images 
 
 <img src="https://github.com/claireFriedrich/FHDR_adapted/blob/main/img/mixed_loss_500_epochs.png" width="380" height="280" />
 
-### Our testing results 
-The 34 generated test HDR images for each of the above models can be found at the links below: 
-- [Results of 2-Iterations model from paper](https://drive.google.com/drive/folders/1qmffl_CTiMT6DsWB6FUP7blZrgOJ1EJf?usp=sharing)
-- [Results of FHDR model trained on 1700 256x256 images with 200 epochs, only VGG loss](https://drive.google.com/drive/folders/1TD6_lcl6PIMF_oM5_q7oQBqK91w_dvW_?usp=sharing)
-- [Results of FHDR model trained on 1700 256x256 images with 200 epochs, VGG + L1 loss](https://drive.google.com/drive/folders/1itfrmDBN_RgWfKRNqkECfvQIcMqO1FE9?usp=sharing)
-- [Results of FHDR model trained on 500 256x256 clear-sky images with 200 epoch](https://drive.google.com/drive/folders/1BxrDXyPI6w4A1OhEBBPtvc8oRD7xj8xj?usp=sharing)
-
 ### Evaluation of the model
 
 The performance of the network can be evaluated using: 
@@ -208,6 +201,14 @@ python3 test.py --ckpt_path /path/to/checkpoint
 - If checkpoint path is not specified, it defaults to `checkpoints/latest.ckpt` for evaluating the model.
 
 **Note:** Inference can be done on CPU (45 min)
+
+### Our testing results 
+The 34 generated test HDR images for each of the above models can be found at the links below: 
+- [Results of 2-Iterations model from paper](https://drive.google.com/drive/folders/1qmffl_CTiMT6DsWB6FUP7blZrgOJ1EJf?usp=sharing)
+- [Results of FHDR model trained on 1700 256x256 images with 200 epochs, only VGG loss](https://drive.google.com/drive/folders/1TD6_lcl6PIMF_oM5_q7oQBqK91w_dvW_?usp=sharing)
+- [Results of FHDR model trained on 1700 256x256 images with 200 epochs, VGG + L1 loss](https://drive.google.com/drive/folders/1itfrmDBN_RgWfKRNqkECfvQIcMqO1FE9?usp=sharing)
+- [Results of FHDR model trained on 500 256x256 clear-sky images with 200 epoch](https://drive.google.com/drive/folders/1BxrDXyPI6w4A1OhEBBPtvc8oRD7xj8xj?usp=sharing)
+
 
 ### Acknowledgement
 
