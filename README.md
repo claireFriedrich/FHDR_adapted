@@ -20,7 +20,6 @@ The repository was created within the scope of a Machine Learning project during
 - [Files](#files)
 - [Dataset](#dataset)
 - [Training](#training)
-- [Pretrained models](#pretrained-models)
 - [Evaluation](#evaluation)
 - [Acknowledgement](#acknowledgement)
 
@@ -190,7 +189,7 @@ These models have been trained with the default options, on 256x256 size images 
 
 <img src="https://github.com/claireFriedrich/FHDR_adapted/blob/main/img/mixed_loss_500_epochs.png" width="380" height="280" />
 
-## Evaluation of the model
+## Evaluation
 
 The performance of the network can be evaluated using: 
 
