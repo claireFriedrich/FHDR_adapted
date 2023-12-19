@@ -178,7 +178,7 @@ python3 train.py --help
 ### Pretrained models
 
 
-Three pre-trained models can be downloaded from the below-mentioned links. 
+Four pre-trained models can be downloaded from the below-mentioned links. 
 
 These models have been trained with the default options, on 256x256 size images for 200 epochs.
 
