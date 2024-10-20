@@ -15,7 +15,6 @@ opt.log_scores = True
 
 # print the configured options
 print(opt)
-
 # ======================================
 # Load the data
 # ======================================

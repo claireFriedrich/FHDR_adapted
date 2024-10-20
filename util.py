@@ -19,7 +19,6 @@ def load_checkpoint(model, ckpt_path):
     print("Resuming from epoch ", start_epoch)
     return start_epoch, model
 
-
 def make_required_directories(mode):
     """
     Create necessary directories for training or testing.

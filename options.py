@@ -2,7 +2,6 @@
 
 import argparse
 
-
 class Options:
     """
     Options and settings for training, debugging and evaluation of FHDR model.

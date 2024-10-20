@@ -2,7 +2,6 @@ import os
 import shutil
 import numpy as np
 import sys
-
 # create the corresponding folders
 if not os.path.exists("./dataset_clear"):
     print("Making clear dataset directory")

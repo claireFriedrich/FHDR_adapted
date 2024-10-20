@@ -34,7 +34,6 @@ from sklearn.model_selection import train_test_split
 if not os.path.exists(f"./plots"):
         print(f"Making plot directory")
         os.makedirs(f"./plots")
-
 def weights_init(m):
     """
     Initializing the weights of the network as a first step.

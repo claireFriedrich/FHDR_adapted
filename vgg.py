@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
-
 class Vgg19(torch.nn.Module):
     """
     Class for a VGG19 feature extractor module.
